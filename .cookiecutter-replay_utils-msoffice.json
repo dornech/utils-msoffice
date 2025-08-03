@@ -1,0 +1,47 @@
+{
+  "cookiecutter": {
+    "full_name": "dornech",
+    "email": "dornech@gmx.de",
+    "project_name": "Microsoft Office utilities for Python based on PyWin32",
+    "project_slug": "utils-msoffice",
+    "pkg_name": "utils_msoffice",
+    "project_short_description": "Package with utilities to work with MS Office applications from Python via COM interface technology",
+    "open_source_license": "GPL-3.0-only",
+    "target_python_version": "3.8",
+    "github_username": "dornech",
+    "project_repo": "https://github.com/dornech/utils-msoffice",
+    "pypi_username": "dornech",
+    "lock_file_support": false,
+    "_template": "https://github.com/florianwilhelm/the-hatchlor.git",
+    "_output_dir": "F:\\WinPython\\WPy_Projekte\\utils-msoffice",
+    "_repo_dir": "F:\\WinPython\\WPy64-31140\\settings\\.cookiecutters\\the-hatchlor",
+    "_checkout": null
+  },
+  "_cookiecutter": {
+    "full_name": "Florian Wilhelm",
+    "email": "email@example.com",
+    "project_name": "Python hatch project",
+    "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '-') }}",
+    "pkg_name": "{{ cookiecutter.project_slug.replace('-', '_').replace('.', '_') }}",
+    "project_short_description": "Python project featuring the modern and extensible Python project manager hatch.",
+    "open_source_license": [
+      "MIT",
+      "BSD-3-Clause",
+      "ISC",
+      "Apache-2.0",
+      "GPL-3.0-only",
+      "proprietary"
+    ],
+    "target_python_version": [
+      "3.10",
+      "3.8",
+      "3.9",
+      "3.11",
+      "3.12"
+    ],
+    "github_username": "{{ cookiecutter.full_name.replace(' ', '')}}",
+    "project_repo": "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}",
+    "pypi_username": "{{ cookiecutter.github_username }}",
+    "lock_file_support": false
+  }
+}
