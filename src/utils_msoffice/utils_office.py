@@ -98,10 +98,6 @@ def assignCOMapplication(appCOMclass: str, tryStart: bool, staticLink: bool = Tr
     try:
         appCOMobj = win32com.client.GetActiveObject(Class=appCOMclass)
         # property 'visible' not supported by all Microsoft Office applications
-        # try:
-        #     appCOMobj.Visible = True
-        # except:
-        #     pass
         with contextlib.suppress(Exception):
             appCOMobj.Visible = True
         #  error code  0x800401E2 "Operation unavailable" is equivalent to VBA runtime error 429
@@ -265,8 +261,7 @@ def get_attrmap(cls: object) -> dict:
             if hasattr(cls, direntry):
                 if callable(getattr(cls, direntry)):
                     direntry_lower = direntry.lower()
-                    if direntry_lower not in dir(cls):
-                        attrmap[direntry_lower] = direntry
+                    attrmap[direntry_lower] = direntry
 
     return attrmap
 
@@ -398,31 +393,13 @@ class msoBaseWrapper:
 
     def __init__(self, msoWrapped):
 
-        # initialize instance - version with attribute mappings as class attributes
-        # initialized on first call per Microsoft Office CLSID only not
-        # developed
-        # - use of class method __new__ not possible due dependency on __init__ parameter
-        # - mappings must be on class level because otherwise recursion error
-
-        # # initialize instance - mapping tables
-        # if self.__class__._cls_attrmap == {}:
-        #     self.__class__._cls_attrmap = UtilsOffice.get_attrmap(self.__class__)
-        #     # manually add relevant attribute
-        #     self.__class__._cls_attrmap["_msoWrapped"] = "_msoWrapped"
-        #     self.__class__._cls_attrmap["_msowrapped"] = "_msoWrapped"
-        #     self.__class__._cls_attrmap["msowrapped"] = "_msoWrapped"
-        #     self.__class__._cls_attrmap_wrapped_get, self.__class__._cls_attrmap_wrapped_put, self.__class__._cls_attrmap_wrapped_method = UtilsOffice.get_attrmapCOM(xlWrapped)
-
         # initialize instance - version with attribute mappings determined
         # during every instantiation (different object classes!)
         # however: problems are to be expected if wrapper wraps different
         # application classes at the same time because class attributes are
         # shared across instances -> to avoid see use of class factory functions
-        # self.__class__._cls_attrmap = get_attrmap(self.__class__)
-        # manually add relevant attribute
-        # self.__class__._cls_attrmap["_msoWrapped"] = "_msoWrapped"
-        # self.__class__._cls_attrmap["_msowrapped"] = "_msoWrapped"
-        # self.__class__._cls_attrmap["msowrapped"] = "_msoWrapped"
+
+        # initialize instance - mapping tables
         self.__class__._cls_attrmap_wrapped_get, self.__class__._cls_attrmap_wrapped_put, self.__class__._cls_attrmap_wrapped_method = get_attrmapCOM(msoWrapped)
 
         # initialize instance - wrapped object
@@ -436,10 +413,6 @@ class msoBaseWrapper:
         # NOTE: directly available attributes/methods in wrapper class are caught via __getattribute__
         attr_lower = attr.lower()
         attr_desnaked = attr_lower.replace("_", "")
-        # if attr_lower in self.__class__._cls_attrmap:
-        #     retval = getattr(self, self.__class__._cls_attrmap[attr_lower])
-        # elif attr_desnaked in self.__class__._cls_attrmap:
-        #     retval = getattr(self, self.__class__._cls_attrmap[attr_desnaked])
         if attr == "_msoWrapped" or attr[0:1] == "_":
             retval = getattr(self, attr)
         elif attr_lower in self.__class__._cls_attrmap_wrapped_get:
@@ -447,10 +420,8 @@ class msoBaseWrapper:
         elif attr_desnaked in self.__class__._cls_attrmap_wrapped_get:
             retval = getattr(self._msoWrapped, self.__class__._cls_attrmap_wrapped_get[attr_desnaked])
         elif attr.lower() in self.__class__._cls_attrmap_wrapped_method:
-            # retval = getattr(self._xlWrapped, self.__class__._cls_attrmap_wrapped_method[attr_lower])
             retval = functools.partial(callwrapper_COMmethod, self._msoWrapped, self.__class__._cls_attrmap_wrapped_method[attr_lower], self._wrap_retval)
         elif attr_desnaked in self.__class__._cls_attrmap_wrapped_method:
-            # retval = getattr(self._xlWrapped, self.__class__._cls_attrmap_wrapped_method[attr_desnaked])
             retval = functools.partial(callwrapper_COMmethod, self._msoWrapped, self.__class__._cls_attrmap_wrapped_method[attr_desnaked], self._wrap_retval)
         elif hasattr(self._msoWrapped, attr):
             if attr not in self.__class__._cls_attrmap_wrapped_method.values():
@@ -484,14 +455,7 @@ class msoBaseWrapper:
         # wrapped object methods for get for set
         attr_lower = attr.lower()
         attr_desnaked = attr_lower.replace("_", "")
-        # if attr_lower in self.__class__._cls_attrmap:
-        #     # setattr(self, self.__class__._cls_attrmap[attr], value)
-        #     super().__setattr__(self.__class__._cls_attrmap[attr.lower()], value)
-        # elif attr_desnaked in self.__class__._cls_attrmap:
-        #     # setattr(self, self.__class__._cls_attrmap[attr_desnaked], value)
-        #     super().__setattr__(self.__class__._cls_attrmap[attr_desnaked], value)
         if attr == "_msoWrapped" or attr[0:1] == "_":
-            # setattr(self, attr, value)
             super().__setattr__(attr, value)
         elif attr_lower in self.__class__._cls_attrmap_wrapped_put:
             setattr(self._msoWrapped, self.__class__._cls_attrmap_wrapped_put[attr_lower], value)
@@ -576,9 +540,6 @@ def ensure_dispatch(COMobj):
 def enhanceErrorMsg(exception: Exception, localsinfo: dict) -> str:
 
     # convert dict to string with carriage return
-    # localsinfostr = str(localsinfo)
-    # localsinfostr2 = "\nLocals:{ " + (",\n".join(localsinfostr[1:-1].split(","))) + " }"  -> problems with lists in Locals()
-    # localsinfostr2 = "\nLocals: {\n" + [f"'{key}': {value}\n" for key, value in localsinfo.items()] + "}" -> problems with nested lists
     localsinfostr2 = "\nLocals: {\n"
     for key, value in localsinfo.items():
         try:

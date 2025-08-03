@@ -102,11 +102,8 @@ import os.path
 import tempfile
 import atexit
 import datetime
-# import time
 
 import pythoncom
-# import pywintypes
-# import win32com.client
 
 import functools
 import multimethod
@@ -117,10 +114,6 @@ import pandas
 # import PySimpleGUI as simplegui
 import FreeSimpleGUI as simplegui
 simplegui.theme("Default1")
-
-# switch os.path -> pathlib
-sys.path.insert(1, os.path.dirname(os.path.realpath(__file__)))
-# sys.path.insert(1, str(pathlib.Path(__file__).resolve().parent))
 
 import utils_mystuff as Utils
 import utils_msoffice.utils_office as UtilsOffice
@@ -225,16 +218,13 @@ class xlGenericWrapper:
         elif attr_desnaked in self.__class__._cls_attrmap_wrapped_get:
             retval = getattr(self._xlWrapped, self.__class__._cls_attrmap_wrapped_get[attr_desnaked])
         elif attr.lower() in self.__class__._cls_attrmap_wrapped_method:
-            # retval = getattr(self._xlWrapped, self.__class__._cls_attrmap_wrapped_method[attr_lower])
             retval = functools.partial(UtilsOffice.callwrapper_COMmethod, self._xlWrapped, self.__class__._cls_attrmap_wrapped_method[attr_lower], self._wrap_retval)
         elif attr_desnaked in self.__class__._cls_attrmap_wrapped_method:
-            # retval = getattr(self._xlWrapped, self.__class__._cls_attrmap_wrapped_method[attr_desnaked])
             retval = functools.partial(UtilsOffice.callwrapper_COMmethod, self._xlWrapped, self.__class__._cls_attrmap_wrapped_method[attr_desnaked], self._wrap_retval)
         elif hasattr(self._xlWrapped, attr):
             if attr not in self.__class__._cls_attrmap_wrapped_method.values():
                 retval = getattr(self._xlWrapped, attr)
             else:
-                # retval = UtilsOffice.wrap_COMmethod(getattr(self._xlWrapped, attr), self._wrap_retval)
                 retval = functools.partial(UtilsOffice.callwrapper_COMmethod, self._xlWrapped, attr, self._wrap_retval)
         else:
             err_msg = f"'{self!r}' object has no attribute '{attr}'"
@@ -275,19 +265,17 @@ class xlGenericWrapper:
     # pass through for Microsoft Office object model set-attributes to wrapped COM object
     def __setattr__(self, attr, value) -> Any:
 
-        # setattr for "pythonized" caller names - o private wrapper attributes and
-        # wrapped object methods for get for set
-        # assumption: wrapper class has no attributes to be set externally / properties
+        # setattr for "pythonized" caller names - private wrapper attributes and
+        # wrapped object methods for set
+        # old assumption: wrapper class has no attributes to be set externally / properties
+        # but re-activated
         attr_lower = attr.lower()
         attr_desnaked = attr_lower.replace("_", "")
-        # if attr.lower() in self.__class__._cls_attrmap:
-        #     # setattr(self, self.__class__._cls_attrmap[attr_lower], value)
-        #     super().__setattr__(self.__class__._cls_attrmap[attr_lower], value)
-        # elif attr_desnaked in self.__class__._cls_attrmap:
-        #     # setattr(self, self.__class__._cls_attrmap[attr_desnaked], value)
-        #     super().__setattr__(self.__class__._cls_attrmap[attr_desnaked], value)
+        if attr.lower() in self.__class__._cls_attrmap:
+            super().__setattr__(self.__class__._cls_attrmap[attr_lower], value)
+        elif attr_desnaked in self.__class__._cls_attrmap:
+            super().__setattr__(self.__class__._cls_attrmap[attr_desnaked], value)
         if attr == "_xlWrapped" or attr[0:1] == "_":
-            # setattr(self, attr, value)
             super().__setattr__(attr, value)
         elif attr_lower in self.__class__._cls_attrmap_wrapped_put:
             setattr(self._xlWrapped, self.__class__._cls_attrmap_wrapped_put[attr_lower], value)
@@ -358,8 +346,6 @@ class xlAppWrapper:
             self._started = b_started
             self._opened_workbooks_when_started = [wb.FullName for wb in self._xlWrapped.Workbooks]
             self._ExcelFlags.initialized = False
-            # atexit.register(self.resetExcelFlags)
-            # atexit.register(self.close_workbooks_not_opened_when_started)
             atexit.register(self.CleanUpAndQuit)
 
         def __getitem__(self, idx: Union[int, str]):
@@ -623,7 +609,6 @@ def is_workbook_open_fullname(xlapp: object, wbname: str) -> bool:
 
 # wrapper for opening workbook to allow processing of locked files
 # for parameters see Excel function signature
-# def openWorkbook(xlapp: object, Filename: str, minimizenew: bool = True, autoexec: bool = False, UpdateLinks: bool = False, Password: str = "" , **kwargs) -> bool:
 def openWorkbook(xlapp: object, filename: str, minimizenew: bool = True, autoexec: bool = False, **kwargs) -> Union[xlWorkbookWrapper, None]:
     """
     openWorkbook - open workbook

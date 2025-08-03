@@ -42,10 +42,6 @@ import os
 
 from tap import Tap as TypedArgParse
 
-# switch os.path -> pathlib
-sys.path.insert(1, os.path.dirname(os.path.realpath(__file__)))
-# sys.path.insert(1, str(pathlib.Path(__file__).resolve().parent))
-
 import utils_mystuff as Utils
 import utils_msoffice.utils_office as UtilsOffice
 
@@ -344,16 +340,11 @@ class RunnerVBAcall:
 
         # check parameters - add/overwrite parameters by values provided via CLI
         params_dict = params.as_dict()
-        # for key, value in params_dict:
-        #     if key in ParamsClass.__annotations__:
-        #         inifile_configdict[key] = value
         inifile_configdict = {key: params_dict.get(key, inifile_configdict[key]) for key in inifile_configdict}
-        # Utils.copydictfields(params_dict, inifile_configdict)
 
         # arg-parse from ini-file params dictionary into params structure used for calling
         # note: mandatory parameters (i.e. app + file + linkCOM) must be contained in source dictionary
         paramsparser_from_INI = ParamsClass(explicit_bool=True)
-        # params_from_INI = paramsparser_from_INI.from_dict(inifile_configdict)
         if issubclass(type(params), ParamsClassCOMlinkedINI):
             params_from_INI = paramsparser_from_INI.from_dict(
                 {
@@ -363,7 +354,7 @@ class RunnerVBAcall:
                 }
             )
         else:
-            params_from_INI = paramsparser_from_INI.from_dict({**inifile_configdict})
+            params_from_INI = paramsparser_from_INI.from_dict(inifile_configdict)
         Utils.copydictfields(params_dict, params_from_INI)
 
         return params_from_INI
@@ -404,12 +395,6 @@ class RunnerVBAcall:
     def execute_VBAcallee_from_INI(self, params_list: Optional[list[str]] = None) -> None:
         self.executeVBAcalleeINI(params_list)
 
-    # def executeVBAcallerINI(self, params_list: Optional[list[str]] = None) -> None:
-    #     self.executeVBAcalleeINI(params_list)
-
-    # def execute_VBAcaller_from_INI(self, params_list: Optional[list[str]] = None) -> None:
-    #     self.executeVBAcalleeINI(params_list)
-
     def executeVBAcallee(self, params_list: Optional[list[str]] = None) -> None:
         """
         VBA callee interface with direct CLI parameters (basically an CLI callee)
@@ -441,12 +426,6 @@ class RunnerVBAcall:
     def execute_VBAcallee(self, params_list: Optional[list[str]] = None) -> None:
         self.executeVBAcallee(params_list)
 
-    # def executeVBAcaller(self, params_list: Optional[list[str]] = None) -> None:
-    #     self.executeVBAcallee(params_list)
-
-    # def execute_VBAcaller(self, params_list: Optional[list[str]] = None) -> None:
-    #     self.executeVBAcallee(params_list)
-
     def executeMain(self, params: Union[ParamsClassBase, ParamsClassCOMlinked]) -> None:
         """
         main routine executed, main processing is "injected" here
@@ -467,12 +446,11 @@ class RunnerVBAcall:
                     app, doc, started_app = self.assignCOMobjects(params)
                     # initialize status callback
                     statuscallback = functools.partial(UtilsOffice.set_app_status, appCOMobj=app)
-                    # print(f"COM-Link aufgebaut: Anwendung {app.Name}, Datei {doc.Name}, started_app {started_app}")
                 else:
-                    # print(f"COM-Link nicht aktiviert.")
+                    # COM-Link not activated
                     pass
             else:
-                # print(f"COM-Link nicht parametrisiert.")
+                # COM-Link not parameterized
                 pass
 
             if not self._linkCOMargs:
@@ -487,10 +465,6 @@ class RunnerVBAcall:
                     # close app
                     if started_app:
                         UtilsOffice.quit_started_app(app)
-
-        # else:
-        #
-        #   print(params, "\n\n")
 
     def execute_main(self, params: ParamsClassBase) -> None:
         self.executeMain(params)
