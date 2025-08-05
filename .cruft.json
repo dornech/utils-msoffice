@@ -1,0 +1,25 @@
+{
+  "template": "https://github.com/dornech/the-hatchlor-enhanced",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "full_name": "dornech",
+      "email": "dornech@gmx.de",
+      "project_name": "Microsoft Office utilities for Python based on PyWin32",
+      "project_slug": "utils-msoffice",
+      "pkg_name": "utils_msoffice",
+      "project_short_description": "Package with utilities to work with MS Office applications from Python via COM interface technology",
+      "open_source_license": "GPL-3.0-only",
+      "target_python_version": "3.9",
+      "github_username": "dornech",
+      "project_repo": "https://github.com/dornech/utils-msoffice",
+      "pypi_username": "dornech",
+      "lock_file_support": false,
+      "_template": "https://github.com/dornech/the-hatchlor-enhanced.git"
+    }
+  },
+  "directory": null,
+  "skip": [
+    ".git"
+  ]
+}
