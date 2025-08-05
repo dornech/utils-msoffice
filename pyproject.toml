@@ -11,9 +11,9 @@ build-backend = "hatchling.build"
 name = "utils-msoffice"
 description = "Package with utilities to work with MS Office applications from Python via COM interface technology"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 # only license identifier from https://spdx.org/licenses/ are allowed
-license = { text = "GPL-3.0-only"}
+license = { text = "GPL-3.0-only" }
 # keywords for easier look-up on PyPI
 keywords = ["Microsoft Office", "MS Office", "Excel", "office object wrapper"]
 authors = [
@@ -22,7 +22,6 @@ authors = [
 # options under https://pypi.org/classifiers/
 classifiers = [
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -272,7 +271,6 @@ select = [
     "UP",
     "W",
     "YTT",
-    "RUF100", # Automatically remove unused # noqa directives
 ]
 ignore = [
     # Allow non-abstract empty methods in abstract base classes
@@ -291,7 +289,7 @@ ignore = [
     "I001",    # enforce reorganisation of imports
     "T201",    # print statements
     "Q000",    # double quotes found but single quotes preferred
-    "RUF100", # Automatically remove unused # noqa directives
+    "RUF100",  # Automatically remove unused # noqa directives
 ]
 unfixable = [
     # "F401",  # Don't touch unused imports
@@ -299,7 +297,7 @@ unfixable = [
 exclude = ["__init__.py", "_version.py"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["{{ cookiecutter.pkg_name }}"]
+known-first-party = ["utils_msoffice"]
 
 [tool.ruff.lint.flake8-quotes]
 # inline-quotes = "single"
