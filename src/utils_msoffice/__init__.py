@@ -13,39 +13,30 @@ Set of submodules contains:
 """
 
 
+# ruff and mypy per file settings
+#
+# empty lines
+# ruff: noqa: E302, E303
+# naming conventions
+# ruff: noqa: N801, N802, N803, N806, N812, N813, N815, N816, N818, N999
 
-from importlib.metadata import PackageNotFoundError, version
+# fmt: off
 
+
+
+# version determination
+
+# original Hatchlor version
+# from importlib.metadata import PackageNotFoundError, version
 # try:
-#     __version__ = version('utils-msoffice')
+#     __version__ = version('{{ cookiecutter.project_slug }}')
 # except PackageNotFoundError:  # pragma: no cover
 #     __version__ = 'unknown'
 # finally:
 #     del version, PackageNotFoundError
 
-# up-to-date version tag for modules installed in editable mode inspired by
-# https://github.com/maresb/hatch-vcs-footgun-example/blob/main/hatch_vcs_footgun_example/__init__.py
-# Define the variable '__version__':
-try:
-
-    # own developed alternative variant to hatch-vcs-footgun overcoming problem of ignored setuptools_scm settings
-    # from hatch-based pyproject.toml libraries
-    from hatch.cli import hatch
-    from click.testing import CliRunner
-    # determine version via hatch
-    __version__ = CliRunner().invoke(hatch, ["version"]).output.strip()
-
-except (ImportError, LookupError):
-    # As a fallback, use the version that is hard-coded in the file.
-    try:
-        from ._version import __version__  # noqa: F401
-    except ModuleNotFoundError:
-        # The user is probably trying to run this without having installed the
-        # package, so complain.
-        raise RuntimeError(
-            f"Package {__package__} is not correctly installed. Please install it with pip."
-        )
-
+# latest import requirement for hatch-vcs-footgun-example
+from utils_msoffice.version import __version__
 
 
 import sys
