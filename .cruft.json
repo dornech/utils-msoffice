@@ -14,7 +14,12 @@
       "github_username": "dornech",
       "project_repo": "https://github.com/dornech/utils-msoffice",
       "pypi_username": "dornech",
+      "tooling_environment": "commitizen",
+      "__tooling_packages": "{'commitizen': ['commitizen'], 'semantic-release': ['semantic-release'], 'bump-my-version_and_generate-changelog': ['bump-my-version', 'generate-changelog'], 'none': []}",
+      "commitmsg_linter": "toolchain_default",
+      "__tooling_commitmsg_linter": "{'toolchain_default': 'commitizen', 'enforce_commitizen': 'commitizen', 'enforce_gitlint': 'gitlint', 'none': '0'}",
       "lock_file_support": false,
+      "initial_commit": false,
       "_template": "https://github.com/dornech/the-hatchlor-enhanced.git"
     }
   },

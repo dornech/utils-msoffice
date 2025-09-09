@@ -1,3 +1,8 @@
+# pre-commit defaults
+default_stages: [ pre-commit, pre-merge-commit, pre-push, manual ]   # define default explicitly to avoid double execution for commit-msg hook for commit-msg linter
+default_install_hook_types: [ pre-commit, commit-msg ]
+
+# pre-commit repos
 repos:
 
   # standard pre-commit hooks
@@ -21,7 +26,7 @@ repos:
         args: [ '--fix=auto' ]  # replace 'auto' with 'lf' to enforce Linux/Mac line endings or 'crlf' for Windows
       - id: detect-private-key
 
-  # Ruff (replaces black, flake8, autoflake, isort and more)
+  # ruff (replaces black, flake8, autoflake, isort and more)
   # - repo: https://github.com/charliermarsh/ruff-pre-commit
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: 'v0.11.12'  # make sure this is always consistent with hatch configs
@@ -38,9 +43,9 @@ repos:
         args: [ "--install-types", "--non-interactive", "--config-file=pyproject.toml" ]
         additional_dependencies: [ types-tabulate, types-cachetools ]
 
-  # gitlint - linter for git commit messages
-  - repo: https://github.com/jorisroovers/gitlint
-    rev: 'v0.19.1'
+  # commitizen - linter for git commit messages
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: 'v1.17.0'
     hooks:
-      - id: gitlint    # this is the regular commit-msg hook
-      - id: gitlint-ci # hook for CI environments
+      - id: commitizen
+        stages: [commit-msg]

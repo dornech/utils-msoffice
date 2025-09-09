@@ -9,10 +9,9 @@ Package with utilities to work with MS Office applications from Python via COM i
 Set of submodules contains:
 
 - submodule for Microsoft Office constants -> deprecated, switched to access to win32.com.client.constants
-- submodule for Microsoft VBA constants
 - submodule with utilities for Microsoft Office in general
 - submodule with utilities for Microsoft Excel including "pythonic" access to ExcelAPI
-- submodule for interfacing calling COM scripting with Microsoft Office applications
+- submodule for interfacing caller with Microsoft Office applications via Python COM wrapper
 
 ## Navigation
 
