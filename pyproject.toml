@@ -93,15 +93,21 @@ version_scheme = "pep440"
 version = "0.0.1"
 version_files = ["pyproject.toml:version"]
 tag_format = "v$version"
+# retry_after_failure = false
 update_changelog_on_bump = true
 changelog_file = "CHANGELOG.md"
 template = "changelog_commitizen-template.md.j2"
+post_bump_hooks = [
+    "echo %CZ_POST_CURRENT_TAG_VERSION% pushed to remote GitHub repository",
+    "git push origin HEAD",
+    "git push origin %CZ_POST_CURRENT_TAG_VERSION%",
+]
 
 [tool.commitizen.customize]
-message_template = "{% if scope %} '{{ change_type }}({{ scope }}): { {message }}' {% else %} '{{ change_type }}: {{ message }}'"
+message_template = "{% if scope %} '{{ change_type }}({{ scope }}): {{ message }}' {% else %} '{{ change_type }}: {{ message }}'"
 example = "'feat: add new endpoint'or 'feat(api): add new endpoint'"
 schema = "'<type>: <subject>' or '<type>(<scope>): <subject>'"
-schema_pattern = "(feat|fix|docs|style|refactor|perf|test|chore|build|deps|ci|revert)(\\([^)]+\\))?:\\s.*"
+schema_pattern = "(bump|feat|fix|docs|style|refactor|perf|test|chore|build|deps|ci|revert)(\\([^)]+\\))?:\\s.*"
 bump_pattern = "^(feat|fix|BREAKING CHANGE)"
 bump_map = {"feat" = "MINOR", "fix" = "PATCH", "BREAKING CHANGE" = "MAJOR"}
 # user defined changelog format - standard semantic-release + commit-sha and commit-url

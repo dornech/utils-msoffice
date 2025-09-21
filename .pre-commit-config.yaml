@@ -10,6 +10,7 @@ repos:
     rev: v4.6.0
     hooks:
       - id: trailing-whitespace
+        exclude: CHANGELOG.md
       - id: check-added-large-files
       - id: check-merge-conflict
       - id: check-shebang-scripts-are-executable
@@ -22,6 +23,7 @@ repos:
       - id: check-yaml
         args: [ '--unsafe' ]  # needed for !! tags in mkdocs.yml
       - id: end-of-file-fixer
+        exclude: CHANGELOG.md
       - id: mixed-line-ending
         args: [ '--fix=auto' ]  # replace 'auto' with 'lf' to enforce Linux/Mac line endings or 'crlf' for Windows
       - id: detect-private-key
