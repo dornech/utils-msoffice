@@ -96,7 +96,6 @@ added sheet: True
 from typing import Any, ClassVar, NewType, Optional, Union
 from dataclasses import dataclass
 
-import sys
 import os.path
 # import pathlib
 import tempfile
