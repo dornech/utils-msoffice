@@ -37,8 +37,25 @@ jobs:
         run: echo "$GITHUB_CONTEXT"
 
   build-documentation:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
+      - name: Install Cairo via MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: mingw-w64-x86_64-cairo
+      - name: Add MSYS2 Cairo to PATH to make cairocffi libraries like libcairo-2.dll discoverable
+        shell: powershell
+        # "C:\msys64\mingw64\bin" did not work, try "C:\Program Files\Unity Hub\resources\app.asar.unpacked\node_modules\canvas\build\Release"
+        # found using Get-ChildItem -Path C:\ -Filter "*libcairo*.d*" -File -Recurse -ErrorAction SilentlyContinue in Log step
+        run: |
+          echo "C:\Program Files\Unity Hub\resources\app.asar.unpacked\node_modules\canvas\build\Release" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "CAIROCFFI_DLL_DIRECTORIES=C:\Program Files\Unity Hub\resources\app.asar.unpacked\node_modules\canvas\build\Release" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Log environment variable updates
+        shell: powershell
+        run: |
+          Write-Host "GITHUB_PATH: $env:PATH"
+          Write-Host "CAIROCFFI_DLL_DIRECTORIES: $env:CAIROCFFI_DLL_DIRECTORIES"
       - name: Check out the repository
         uses: actions/checkout@v5
       - name: Set up Python

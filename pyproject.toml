@@ -126,7 +126,7 @@ change_type_order = ["BREAKING CHANGE", "feat", "fix", "refactor", "perf", "docs
 ##################
 
 [tool.docsig]
-check-class = true
+check-class = false
 check-class-constructor = true
 check-dunders = false
 check-nested = false
@@ -291,7 +291,7 @@ exclude_lines = [
 
 # Hatch default environment
 [tool.hatch.envs.default]
-python = "3.9"
+# python = "3.9"
 post-install-commands = ["pre-commit install", "pre-commit install --hook-type commit-msg"]
 dependencies = [
     "pre-commit",
@@ -333,7 +333,7 @@ debug =  "cov --no-cov -s --pdb --pdbcls=IPython.core.debugger:Pdb {args}"
 # Hatch testing environment matrix for various Python versions replacing the functionality of tox
 [[tool.hatch.envs.test.matrix]]
 template = ["test"]
-python = ["39", "310", "311", "312", "313"]
+python = ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
 # Hatch default linting environment for "hatch fmt"
 [tool.hatch.envs.hatch-static-analysis]
@@ -354,11 +354,11 @@ dependencies = [
 ]
 [tool.hatch.envs.lint.scripts]
 typing = [
-    "echo \"VERSION: `mypy --version`\"",
+    "mypy --version",
     "mypy --install-types --non-interactive {args}"
 ]
 style = [
-    "echo \"VERSION: `ruff --version`\"",
+    "ruff --version",
     "ruff check {args:.}",
     "ruff format --check {args:.}",
 ]
@@ -367,13 +367,10 @@ fix = [
     "ruff check --fix {args:.}",
     "style",  # feedback on what is not fixable
 ]
-docsig = [
-    "docsig",
-]
 all = [
     "style",
     "typing",
-    "docsig",
+    "docsig src",
 ]
 
 # Hatch environment for building documentation

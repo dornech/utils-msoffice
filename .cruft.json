@@ -11,6 +11,7 @@
       "project_short_description": "Package with utilities to work with MS Office applications from Python via COM interface technology",
       "open_source_license": "GPL-3.0-only",
       "target_python_version": "3.9",
+      "target_os_platform": "windows-latest",
       "github_username": "dornech",
       "project_repo": "https://github.com/dornech/utils-msoffice",
       "pypi_username": "dornech",
