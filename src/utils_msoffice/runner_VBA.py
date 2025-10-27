@@ -20,7 +20,7 @@ callee class.
 # boolean-type arguments
 # ruff: noqa: FBT001, FBT002
 # others
-# ruff: noqa: E501, PLR0917, PLR1714, RUF013, SIM102
+# ruff: noqa: E501, PLR0917, PLR1714, RUF013, S101, SIM102
 #
 # disable mypy errors
 # - mypy error "'object' has no attribute 'xyz' [attr-defined]" when accessing attributes of
@@ -36,7 +36,6 @@ from typing import Callable, Optional, Union
 
 import functools
 
-import sys
 import os
 # from pathlib import Path
 
@@ -70,7 +69,7 @@ class ParamsClassCOMlinked(ParamsClassBase):
     docfile: str  # Microsoft Office host document calling
     linkCOM: bool  # Flag for creating COM objects references for calling application (host + user application)
 
-    def configure(self):
+    def configure(self):  # docsig: disable=SIG101
         choices_app = [
             "Excel",
             "Microsoft Excel",
@@ -305,7 +304,6 @@ class RunnerVBAcall:
 
         return appCOMobj, docCOMobj, started_app
 
-    # read params from config file
     @staticmethod
     def readini2params(
         params: Union[ParamsClassINI, ParamsClassCOMlinkedINI], ParamsClass: type[ParamsClassBase]
@@ -346,11 +344,13 @@ class RunnerVBAcall:
         # note: mandatory parameters (i.e. app + file + linkCOM) must be contained in source dictionary
         paramsparser_from_INI = ParamsClass(explicit_bool=True)
         if issubclass(type(params), ParamsClassCOMlinkedINI):
-            params_from_INI = paramsparser_from_INI.from_dict(
+            assert isinstance(params, ParamsClassCOMlinkedINI)
+            params_from_INI: ParamsClassCOMlinked = paramsparser_from_INI.from_dict(
                 {
                     "app": params.app,
                     "docfile": params.docfile,
-                    "linkCOM": params.linkCOM, **inifile_configdict
+                    "linkCOM": params.linkCOM,
+                    **inifile_configdict
                 }
             )
         else:
@@ -393,6 +393,9 @@ class RunnerVBAcall:
             raise AttributeError(err_msg)
 
     def execute_VBAcallee_from_INI(self, params_list: Optional[list[str]] = None) -> None:
+        """
+        VBA callee interface for parameter retrieval from INI file provided as parameter (alternative callee)
+        """
         self.executeVBAcalleeINI(params_list)
 
     def executeVBAcallee(self, params_list: Optional[list[str]] = None) -> None:
@@ -424,6 +427,9 @@ class RunnerVBAcall:
             raise AttributeError(err_msg)
 
     def execute_VBAcallee(self, params_list: Optional[list[str]] = None) -> None:
+        """
+        VBA callee interface with direct CLI parameters (alternative callee)
+        """
         self.executeVBAcallee(params_list)
 
     def executeMain(self, params: Union[ParamsClassBase, ParamsClassCOMlinked]) -> None:
@@ -443,6 +449,7 @@ class RunnerVBAcall:
                     app: object = None
                     doc: object = None
                     started_app: bool = False
+                    assert isinstance(params, ParamsClassCOMlinked)
                     app, doc, started_app = self.assignCOMobjects(params)
                     # initialize status callback
                     statuscallback = functools.partial(UtilsOffice.set_app_status, appCOMobj=app)
@@ -467,10 +474,19 @@ class RunnerVBAcall:
                         UtilsOffice.quit_started_app(app)
 
     def execute_main(self, params: ParamsClassBase) -> None:
+        """
+        main routine executed, main processing is "injected" here (alternative call)
+        """
         self.executeMain(params)
 
     def execMain(self, params: ParamsClassBase) -> None:
+        """
+        main routine executed, main processing is "injected" here (alternative call)
+        """
         self.executeMain(params)
 
     def exec_main(self, params: ParamsClassBase) -> None:
+        """
+        main routine executed, main processing is "injected" here (alternative call)
+        """
         self.executeMain(params)

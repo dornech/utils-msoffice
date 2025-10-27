@@ -47,7 +47,7 @@ import dateutil.tz
 
 
 
-# Office COM class signatures
+# Office ProgIDs / COM class names
 COMclass_Access = "Access.Application"
 COMclass_Excel = "Excel.Application"
 
@@ -59,16 +59,20 @@ COMclass_Excel = "Excel.Application"
 class ErrorUtilsOffice(BaseException):
     pass
 
-# convert hresult to unsigned long for correct hex representation
-def fix_hresult(hresult):
+
+def fix_hresult(hresult: int) -> Any:
     """
     fix_hresult - convert hresult to unsigned long for correct hex representation
 
+    HRESULT values in Windows are typically signed 32-bit integers. This function converts
+    a possibly negative signed HRESULT into its unsigned equivalent so that hexadecimal
+    formatting (e.g., `0x80004005`) appears correctly.
+
     Args:
-        hresult (_type_): hresult value
+        hresult (int): signed HRESULT value (maybe negative)
 
     Returns:
-        _type_: hresult as unsigned long
+        int: unsigned 32-bit representation of the HRESULT
     """
     return struct.unpack("L", struct.pack("l", hresult))[0]
 
@@ -76,15 +80,35 @@ def fix_hresult(hresult):
 
 # COM link related routines
 
-# generalised start routine for Microsoft Office host applications
-def assignCOMapplication(appCOMclass: str, tryStart: bool, staticLink: bool = True) -> tuple[object, bool]:
+
+def generate_typelib(appCOMclass: str) -> None:
+    """
+    generate_typelib - generate typelib if not pre-generated as required by COM wrapper (dynamic dispatch does not work)
+
+    Args:
+        appCOMclass (str): ProgID / COM class of Microsoft Office host application
+    """
+    try:
+        # get TypeInfo
+        typeinfo = win32com.client.Dispatch(appCOMclass)._oleobj_.GetTypeInfo(0)
+        # extract the TypeLib and index
+        typelib, index = typeinfo.GetContainingTypeLib()
+        # get the TypeLib attributes
+        typelib_attr = typelib.GetLibAttr()
+        # generate module
+        win32com.client.gencache.EnsureModule(typelib_attr[0], typelib_attr[1], typelib_attr[3], typelib_attr[3])
+        print(f"Successfully generated the makepy module for TypeLibCLSID {typelib_attr[0]} belonging to ProgID / COM class '{appCOMclass}'.")
+    except Exception as e:
+        print(f"Error during  generation of makepy module for TypeLibCLSID {typelib_attr[0]} belonging to ProgID / COM class '{appCOMclass}': {e}")
+
+
+def assignCOMapplication(appCOMclass: str, tryStart: bool) -> tuple[object, bool]:
     """
     assignCOMapplication - generalised start routine for Microsoft Office host applications
 
     Args:
-        appCOMclass (str): name of COM class of Microsoft Office host application
+        appCOMclass (str): ProgID / COM class of Microsoft Office host application
         tryStart (bool): flag for start if not already started
-        staticLink (bool, optional): flag for static link. Defaults to True.
 
     Returns:
         Tuple[object, bool]: application COM object and flag if started by function
@@ -97,6 +121,10 @@ def assignCOMapplication(appCOMclass: str, tryStart: bool, staticLink: bool = Tr
 
     try:
         appCOMobj = win32com.client.GetActiveObject(Class=appCOMclass)
+        if appCOMobj is not None:
+            if isinstance(appCOMobj, win32com.client.CDispatch) or hasattr(appCOMobj, "_olerepr_"):
+                generate_typelib(appCOMclass)
+                appCOMobj = win32com.client.GetActiveObject(Class=appCOMclass)
         # property 'visible' not supported by all Microsoft Office applications
         with contextlib.suppress(Exception):
             appCOMobj.Visible = True
@@ -105,10 +133,7 @@ def assignCOMapplication(appCOMclass: str, tryStart: bool, staticLink: bool = Tr
     except pythoncom.com_error as ErrorApplicationNotStarted:
         if tryStart:
             try:
-                if staticLink:
-                    appCOMobj = win32com.client.gencache.EnsureDispatch(appCOMclass)
-                else:
-                    appCOMobj = win32com.client.Dispatch(appCOMclass)
+                appCOMobj = win32com.client.gencache.EnsureDispatch(appCOMclass)
                 appCOMobj.Visible = True
                 started_app = True
                 # make sure Microsoft Office application is closed if opened by Python program
@@ -116,21 +141,30 @@ def assignCOMapplication(appCOMclass: str, tryStart: bool, staticLink: bool = Tr
             except pythoncom.com_error as ErrorApplicationNotStartable:
                 hresult, msg, exc, arg = ErrorApplicationNotStartable.args
                 hresultfixed = fix_hresult(hresult)
-                err_msg = f"COM application with class identifier '{appCOMclass}' could not be started.\nCOM error HRESULT: {hresult} / {hex(hresultfixed)}\nCOM error msg: {msg}"
+                err_msg = f"COM application with ProgID / COM class '{appCOMclass}' could not be started.\nCOM error HRESULT: {hresult} / {hex(hresultfixed)}\nCOM error msg: {msg}"
                 raise ErrorUtilsOffice(err_msg)  # noqa B904
         else:
             hresult, msg, exc, arg = ErrorApplicationNotStarted.args
             hresultfixed = fix_hresult(hresult)
-            err_msg = f"No active instance of COM application with class identifier '{appCOMclass}' found.\nCOM error HRESULT: {hresult} / {hex(hresultfixed)}\nCOM error msg: {msg}"
+            err_msg = f"No active instance of COM application for ProgID/ COM class '{appCOMclass}' found.\nCOM error HRESULT: {hresult} / {hex(hresultfixed)}\nCOM error msg: {msg}"
             raise ErrorUtilsOffice(err_msg)  # noqa B904
 
     return appCOMobj, started_app
 
-def assign_COMapplication(appCOMclass: str, try_start: bool, static_link: bool = True) -> tuple[object, bool]:
-    return assignCOMapplication(appCOMclass, try_start, static_link)
+def assign_COMapplication(appCOMclass: str, try_start: bool) -> tuple[object, bool]:
+    """
+    assign_COMapplication - generalised start routine for Microsoft Office host applications
+
+    Args:
+        appCOMclass (str): ProgID / COM class of Microsoft Office host application
+        try_start (bool): flag for start if not already started
+
+    Returns:
+        Tuple[object, bool]: application COM object and flag if started by function
+    """
+    return assignCOMapplication(appCOMclass, try_start)
 
 
-# assign Microsoft Office document
 def assignCOMdocument(docfile: str) -> Optional[object]:
     """
     assignCOMdocument - assign Microsoft Office document
@@ -174,10 +208,18 @@ def assignCOMdocument(docfile: str) -> Optional[object]:
     return docCOMobj
 
 def assign_COMdocument(docfile: str) -> Optional[object]:
+    """
+    assign_COMdocument - assign Microsoft Office document
+
+    Args:
+        docfile (str): filename of Microsoft Office document
+
+    Returns:
+        [object or None]: document COM object
+    """
     return assignCOMdocument(docfile)
 
 
-# utility function to set status bar in Microsoft Office application
 def setAppStatus(appCOMobj: object, status: Union[str, bool]) -> None:
     """
     setAppStatus - set Microsoft Office application status
@@ -194,6 +236,13 @@ def setAppStatus(appCOMobj: object, status: Union[str, bool]) -> None:
         appCOMobj.StatusBar = status
 
 def set_app_status(appCOMobj: object, status: Union[str, bool]) -> None:
+    """
+    set_app_status - set Microsoft Office application status
+
+    Args:
+        appCOMobj (_type_): Microsoft Office application COM object
+        status(sr, bool): status
+    """
     setAppStatus(appCOMobj, status)
 
 
@@ -201,7 +250,7 @@ def set_app_status(appCOMobj: object, status: Union[str, bool]) -> None:
 # execution might be delayed after exiting Python
 def startedAppQuit(appCOMobj) -> None:
     """
-    startedAppQuit - quit Microsoft Office application (used in atexit)
+    startedAppQuit - quit Microsoft Office application (f. e. used in atexit)
 
     Args:
         appCOMobj (_type_): Microsoft Office application COM object
@@ -212,10 +261,15 @@ def startedAppQuit(appCOMobj) -> None:
         appCOMobj = None
 
 def quit_started_app(appCOMobj) -> None:
+    """
+    quit_started_app - quit Microsoft Office application (f. e. used in atexit)
+
+    Args:
+        appCOMobj (_type_): Microsoft Office application COM object
+    """
     startedAppQuit(appCOMobj)
 
 
-# utility function to access Microsoft Office constants in make.py generated module
 def get_office_constant(constant: str) -> Any:
     """
     get_office_constant - get Microsoft Office constant from module generated by PyWin32's make.py
@@ -233,10 +287,12 @@ def get_office_constant(constant: str) -> Any:
 
 # utilities for generic wrapper object class and usage
 
-# iterator class to overcome different index base between VBA and Python list comprehension
 class GenericIterator:
+    """
+    iterator class to overcome different index base between VBA and Python list comprehension
+    """
 
-    def __init__(self, data):
+    def __init__(self, data):  # docsig: disable=SIG102
         self.data = data
         self.index = 0
 
@@ -251,8 +307,10 @@ class GenericIterator:
         return self
 
 
-# mapping for class camel case method/property identifiers for getattr
 def get_attrmap(cls: object) -> dict:
+    """
+    get_attrmap - helper to generate mapping for class camel case method/property identifiers for getattr
+    """
 
     attrmap = {}
 
@@ -265,13 +323,20 @@ def get_attrmap(cls: object) -> dict:
 
     return attrmap
 
-# mapping for Microsoft Office camel case method/property identifiers for getattr and setattr
 def get_attrmapCOM(COMobj: object) ->  tuple[dict, dict, dict]:
+    """
+    get_attrmapCOM - helper to generate mapping for Microsoft Office camel case method/property identifiers for getattr and setattr
+    """
 
     attrmap_get = {}
     attrmap_put = {}
     attrmap_method = {}
 
+    # check if makepy done - _olerepr_ object is late binding and causes problems
+    if hasattr(COMobj, "_olerepr_"):
+        err_msg = f"makepy not executed for object of type '{COMobj._username_}', late binding not supported for wrapping."
+        raise ErrorUtilsOffice(err_msg)
+    # determine parent object for get/put properties
     baseobj = COMobj._dispobj_ if hasattr(COMobj, "_dispobj_") else COMobj
 
     if hasattr(baseobj, "_prop_map_get_"):
@@ -300,8 +365,9 @@ def get_attrmapCOM(COMobj: object) ->  tuple[dict, dict, dict]:
 
     return attrmap_get, attrmap_put, attrmap_method
 
+    return attrmap_get, attrmap_put, attrmap_method
 
-# wrapper for COM methods
+
 def callwrapper_COMmethod(wrapped_object: object, method: str, wrap_retval: Callable, *args, **kwargs):
     """
     callwrapper - wrapper for COM methods
@@ -373,7 +439,6 @@ def callwrapper_COMmethod(wrapped_object: object, method: str, wrap_retval: Call
 
 # wrapper classes for "pythonic" call of object methods
 
-# msoBaseWrapper - wrapper class for Office base objects
 class msoBaseWrapper:
     """
     msoBaseWrapper - generic wrapper for Office objects as pass through for calls to wrapped object
@@ -391,7 +456,7 @@ class msoBaseWrapper:
     _cls_attrmap_wrapped_put: ClassVar[dict] = {}
     _cls_attrmap_wrapped_method: ClassVar[dict] = {}
 
-    def __init__(self, msoWrapped):
+    def __init__(self, msoWrapped):  # docsig: disable=SIG102
 
         # initialize instance - version with attribute mappings determined
         # during every instantiation (different object classes!)
@@ -469,7 +534,6 @@ class msoBaseWrapper:
             err_msg = f"'{self!r}' object has no attribute '{attr}'"
             raise AttributeError(err_msg)
 
-# creator function - required to create/allow multiple class instances
 def create_msoBaseWrapper(msoWrapped: object):
     """
     create_msoBaseWrapper - class factory function for msoBaseWrapper
@@ -481,7 +545,6 @@ def create_msoBaseWrapper(msoWrapped: object):
     return msoBaseWrapper_created(msoWrapped)
 
 
-# msoCollectionWrapper - wrapper class for Office Collection object
 class msoCollectionWrapper(msoBaseWrapper):
     """
     msoCollectionWrapper - wrapper for collection objects with pass through for direct calls to wrapped object
@@ -510,8 +573,11 @@ def create_msoCollectionWrapper(msoWrapped: object):
 # utilities for callback
 # http://exceldevelopmentplatform.blogspot.com/2020/04/vba-calling-python-calling-back-into-vba.html
 
-# ensure dispatch (wrapper if PyIDispatch is provided)
+
 def ensureDispatch(COMobj):
+    """
+    ensureDispatch - ensure dispatch (wrapper if PyIDispatch is provided)
+    """
 
     try:
         dispCOMobj = None
@@ -533,11 +599,16 @@ def ensureDispatch(COMobj):
             return "Error: " + str(DispatchException)
 
 def ensure_dispatch(COMobj):
+    """
+    ensure_dispatch - ensure dispatch (wrapper if PyIDispatch is provided)
+    """
     return ensureDispatch(COMobj)
 
 
-# enhance locals (for context of callback)
 def enhanceErrorMsg(exception: Exception, localsinfo: dict) -> str:
+    """
+    enhanceErrorMsg - enhance locals (for context of callback)
+    """
 
     # convert dict to string with carriage return
     localsinfostr2 = "\nLocals: {\n"
@@ -555,12 +626,10 @@ def enhanceErrorMsg(exception: Exception, localsinfo: dict) -> str:
         return "Error:" + str(exception) + localsinfostr2
 
 def enhance_errormsg(exception: Exception, localsinfo: dict) -> str:
+    """
+    enhance_errormsg - enhance locals (for context of callback)
+    """
     return enhanceErrorMsg(exception, localsinfo)
-
-
-
-# here generation for most important COM libraries could be initiated -> relevant if
-# object identifiers should be made available
 
 
 

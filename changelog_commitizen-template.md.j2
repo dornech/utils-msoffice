@@ -1,16 +1,15 @@
 {% if not incremental %}
 # CHANGELOG
-
-
 {% endif %}
-{#  MACRO: Capitalize the first letter of a string only #}
-{%  macro capitalize_first_letter_only(sentence) %}
+{# Macro: Capitalize the first letter of a string only #}
+{% macro capitalize_first_letter_only(sentence) %}
 {{    (sentence[0] | upper) ~ sentence[1:] }}
-{%  endmacro %}
+{% endmacro %}
 
 {% for entry in tree %}
 
-## [{{ entry.version }}](https://github.com/dornech/pytestdornech/releases/tag/{{ entry.version }}) {% if entry.date %}({{ entry.date }}){% endif %}
+
+## [{{ entry.version }}](https://github.com/dornech/utils-msoffice/releases/tag/{{ entry.version }}) {% if entry.date %} ({{ entry.date }}) {% endif %}
 
 {% for change_type, changes in entry.changes.items() %}
 
@@ -19,11 +18,10 @@
 {% endif %}
 {% for change in changes %}
 {% if change.scope %}
-- **{{ change.scope }}**: {{ capitalize_first_letter_only(change.message) }} (['{{ change.sha1[:7] }}'](https://github.com/dornech/pytestdornech/commit/{{ change.sha1 }}))
+- **{{ change.scope }}**: {{ capitalize_first_letter_only(change.message) }} (['{{ change.sha1[:7] }}'](https://github.com/dornech/utils-msoffice/commit/{{ change.sha1 }}))
 {% elif change.message %}
-- {{ capitalize_first_letter_only(change.message) }}(['{{ change.sha1[:7] }}'](https://github.com/dornech/pytestdornech/commit/{{ change.sha1 }}))
+- {{ capitalize_first_letter_only(change.message) }}(['{{ change.sha1[:7] }}'](https://github.com/dornech/utils-msoffice/commit/{{ change.sha1 }}))
 {% endif %}
-
 {% endfor %}
 {% endfor %}
 {% endfor %}

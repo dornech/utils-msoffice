@@ -81,7 +81,7 @@ added sheet: True
 # boolean-type arguments
 # ruff: noqa: FBT001, FBT002
 # others
-# ruff: noqa: A002, ICN001, E115, E402, E501, F841, PLR5501, RUF059, SIM102
+# ruff: noqa: A002, ICN001, E115, E402, E501, F841, PLR5501, RUF059, SIM102, UP007
 #
 # disable mypy errors
 # - mypy error "'object' has no attribute 'xyz' [attr-defined]" when accessing attributes of
@@ -93,6 +93,7 @@ added sheet: True
 
 
 
+# from __future__ import annotations
 from typing import Any, ClassVar, NewType, Optional, Union
 from dataclasses import dataclass
 
@@ -139,7 +140,6 @@ class ExcelFlagsClass:
 
 
 
-# generic wrapper class
 class xlGenericWrapper:
     """
     xlGenericWrapper - generic wrapper as pass through for calls to wrapped object
@@ -179,7 +179,7 @@ class xlGenericWrapper:
     _cls_attrmap_wrapped_put: ClassVar[dict] = {}
     _cls_attrmap_wrapped_method: ClassVar[dict] = {}
 
-    def __init__(self, xlWrapped):
+    def __init__(self, xlWrapped):  # docsig: disable=SIG102
 
         # initialize instance - version with attribute mappings as class
         # attributes are initialized on first call only
@@ -289,8 +289,9 @@ class xlGenericWrapper:
             raise AttributeError(err_msg)
 
 
-# forward declaration for ruff
+# forward declarations for ruff
 xlWorkbookWrapper = NewType("xlWorkbookWrapper", object)
+xlRangeWrapper = NewType("xlRangeWrapper", object)
 
 
 # xlAppWrapper to extend standard Excel Application COM object and encapsulate extended functions
@@ -310,7 +311,8 @@ class xlAppWrapper:
 
     _innerWrapper: ClassVar[object] = None
 
-    def __init__(self, xlWrapped=None):
+    def __init__(self, xlWrapped=None):  # docsig: disable=SIG102
+
         if not xlAppWrapper._innerWrapper:
             xlAppWrapper._innerWrapper = xlAppWrapper.__xlAppWrapper(xlWrapped)
         else:
@@ -333,10 +335,8 @@ class xlAppWrapper:
         __xlAppWrapper - inner wrapper class for Excel application object
         """
 
-        def __init__(self, xlWrapped=None):
-            """
-            __init__ routine for Excel wrapper
-            """
+        def __init__(self, xlWrapped=None):  # docsig: disable=SIG102
+
             b_started = False
             if xlWrapped is None:
                 xlWrapped, b_started = UtilsOffice.assignCOMapplication(UtilsOffice.COMclass_Excel, True)
@@ -356,13 +356,14 @@ class xlAppWrapper:
             """
             saveExcelFlags(self._xlWrapped, self._ExcelFlags)
 
-        def setExcelFlags(self, call_level: str = "", force_save: bool = False, **kwargs) -> None:
+        def setExcelFlags(self, call_level: str = "", force_save: bool = False, **kwargs) -> None:  # docsig: disable=SIG203
             """
             setExcelFlags - wrapper object method calling function to set Excel flags
 
             Args:
                 call_level (str, optional): call level. save before setting if call_level is 'main'. Defaults to "".
                 force_save (bool, optional): flag to enforce save before setting Excel flags. Defaults to False.
+                **kwargs (_type_): Excel flags to be set as keyword parameters
             """
             if (not self._ExcelFlags.initialized) or (call_level.find("main") > 0) or force_save:
                 self.saveExcelFlags()
@@ -408,7 +409,7 @@ class xlAppWrapper:
             """
             return isWorkbookOpenFullname(self._xlWrapped, wbname)
 
-        def openWorkbook(self, filename: str, *args, **kwargs) -> Union[xlWorkbookWrapper, None]:
+        def openWorkbook(self, filename: str, *args, **kwargs) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
             """
             openWorkbook - wrapper object method calling function to open workbook
 
@@ -425,7 +426,7 @@ class xlAppWrapper:
             """
             return openWorkbook(self._xlWrapped, filename, *args, **kwargs)
 
-        def openText(self, filename: str, *args, **kwargs) -> Union[xlWorkbookWrapper, None]:
+        def openText(self, filename: str, *args, **kwargs) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
             """
             openText - wrapper object method calling function to open workbook
 
@@ -463,7 +464,6 @@ class xlAppWrapper:
 
 # xlAppWrapper methods as direct callables
 
-# save Excel application flags
 def saveExcelFlags(xlapp: object, ExcelFlags: ExcelFlagsClass) -> None:
     """
     saveExcelFlags - save Excel flags a) Calculation b) EnableEvents and c) ScreenUpdating
@@ -490,7 +490,7 @@ def save_excel_flags(xlapp: object, ExcelFlags: ExcelFlagsClass) -> None:
     """
     saveExcelFlags(xlapp, ExcelFlags)
 
-# set Excel application flags
+
 def setExcelFlags(xlapp: object, **kwargs) -> None:
     """
     setExcelFlags - set  Excel flags a) Calculation b) EnableEvents and c) ScreenUpdating
@@ -523,7 +523,7 @@ def set_excel_flags(xlapp: object, **kwargs) -> None:
     """
     setExcelFlags(xlapp, **kwargs)
 
-# reset Excel application flags from stored dataset
+
 def resetExcelFlags(xlapp: object, ExcelFlags: ExcelFlagsClass) -> None:
     """
     resetExcelFlags - reset/restore Excel flags from ExcelFlagClass object
@@ -540,7 +540,7 @@ def resetExcelFlags(xlapp: object, ExcelFlags: ExcelFlagsClass) -> None:
         xlapp.EnableEvents = ExcelFlags.EnableEvents
         xlapp.ScreenUpdating = ExcelFlags.ScreenUpdating
 
-def reset_excel_flags(xlapp: object, ExcelFlags: ExcelFlagsClass):
+def reset_excel_flags(xlapp: object, ExcelFlags: ExcelFlagsClass) -> None:
     """
     reset_excel_flags - reset/restore Excel flags from ExcelFlagClass object
 
@@ -551,14 +551,13 @@ def reset_excel_flags(xlapp: object, ExcelFlags: ExcelFlagsClass):
     resetExcelFlags(xlapp, ExcelFlags)
 
 
-# check if workbook is open in Excel - name without path
 def isWorkbookOpen(xlapp: object, wbname: str) -> bool:
     """
     isWorkbookOpen - check if workbook with name 'wbname' is open
 
     Args:
         xlapp (object): Excel application object
-        wbname (str): name of workbook
+        wbname (str): name of workbook (name without path)
 
     Returns:
         bool: boolean value indicating if workbook with name 'wbname' is open
@@ -571,12 +570,13 @@ def is_workbook_open(xlapp: object, wbname: str) -> bool:
 
     Args:
         xlapp (object): Excel application object
-        wbname (str): name of workbook
+        wbname (str): name of workbook (name without path)
 
     Returns:
         bool: boolean value indicating if workbook with name 'wbname' is open
     """
     return wbname in [wb.Name for wb in xlapp.Workbooks]
+
 
 # check if workbook is open in Excel - fullname including  path
 def isWorkbookOpenFullname(xlapp: object, wbname: str) -> bool:
@@ -606,11 +606,12 @@ def is_workbook_open_fullname(xlapp: object, wbname: str) -> bool:
     return wbname in [wb.FullName for wb in xlapp.Workbooks]
 
 
-# wrapper for opening workbook to allow processing of locked files
-# for parameters see Excel function signature
-def openWorkbook(xlapp: object, filename: str, minimizenew: bool = True, autoexec: bool = False, **kwargs) -> Union[xlWorkbookWrapper, None]:
+def openWorkbook(xlapp: object, filename: str, minimizenew: bool = True, autoexec: bool = False, **kwargs) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
     """
     openWorkbook - open workbook
+
+    Wrapper for opening workbook to allow processing of locked files.
+    For parameters see Excel function signature.
 
     Args:
         xlapp (object): Excel application object
@@ -695,6 +696,9 @@ def open_workbook(xlapp: object, filename: str, minimizenew: bool = True, autoex
     """
     open_workbook - open workbook
 
+    Wrapper for opening workbook to allow processing of locked files.
+    For parameters see Excel function signature.
+
      Args:
          xlapp (object): Excel application object
          filename (str): fullname of workbook
@@ -707,11 +711,12 @@ def open_workbook(xlapp: object, filename: str, minimizenew: bool = True, autoex
     return openWorkbook(xlapp, filename, minimizenew, autoexec, **kwargs)
 
 
-# re-implemented OpenText method to overcome automatic recalculation bug in Excel
-# for parameters see Excel function signature
-def openText(xlapp: object, filename: str, minimizenew: bool = True, **kwargs) -> Union[xlWorkbookWrapper, None]:
+def openText(xlapp: object, filename: str, minimizenew: bool = True, **kwargs) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
     """
     openText - open text file
+
+    Re-implemented OpenText method to overcome automatic recalculation bug in Excel.
+    For parameters see Excel function signature.
 
     Note: openText initiates recalculation of open workbooks if not surpressed
     via appropriate setting of EnableCalculationFlag. The function disables
@@ -791,9 +796,12 @@ def openText(xlapp: object, filename: str, minimizenew: bool = True, **kwargs) -
 
     return retval
 
-def open_text(xlapp: object, filename: str, minimizenew: bool = True, **kwargs) -> Union[xlWorkbookWrapper, None]:
+def open_text(xlapp: object, filename: str, minimizenew: bool = True, **kwargs) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
     """
     open_text - open text file
+
+    Re-implemented OpenText method to overcome automatic recalculation bug in Excel.
+    For parameters see Excel function signature.
 
     Note: openText initiates recalculation of open workbooks if not surpressed
     via appropriate setting of EnableCalculationFlag. The function disables
@@ -874,7 +882,7 @@ class xlWorkbooksWrapper(xlGenericWrapper):
         """
         return xlAppWrapper(self._xlWrapped.Parent).isWorkbookOpenFullname(wbname)
 
-    def openWorkbook(self, filename: str, *args, **kwargs) -> Union[xlWorkbookWrapper, None]:
+    def openWorkbook(self, filename: str, *args, **kwargs) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
         """
         openWorkbook - wrapper object method calling function to open workbook
 
@@ -886,7 +894,7 @@ class xlWorkbooksWrapper(xlGenericWrapper):
         """
         return xlAppWrapper(self._xlWrapped.Parent).openWorkbook(filename, *args, **kwargs)
 
-    def openText(self, filename: str, *args, **kwargs) -> Union[xlWorkbookWrapper, None]:
+    def openText(self, filename: str, *args, **kwargs) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
         """
         openText - wrapper object method calling function to open workbook
 
@@ -966,7 +974,6 @@ class xlWorkbookWrapper(xlGenericWrapper):  # type: ignore[no-redef]
 
 # xlWorkbookWrapper methods as direct callables
 
-# check if workbook contains specified worksheet
 def sheet_exists(workbook: object, wsname: str) -> bool:
     """
     sheet_exists - check if worksheet 'wsname' exists in workbook
@@ -1007,7 +1014,6 @@ def contains_worksheet(workbook: object, wsname: str) -> bool:
     return sheet_exists(workbook, wsname)
 
 
-# delete specified worksheet
 def deleteWorksheet(workbook: object, wsname: str) -> None:
     """
     deleteWorksheet - delete worksheet 'wsname' from workbook
@@ -1034,7 +1040,6 @@ def delete_worksheet(workbook: object, wsname: str) -> None:
     deleteWorksheet(workbook, wsname)
 
 
-# minimize workbookwindows
 def minimizeWindows(workbook: object) -> None:
     """
     minimizeWindows - minimize windows of workbook
@@ -1047,6 +1052,12 @@ def minimizeWindows(workbook: object) -> None:
         workbook.Windows(window).WindowState = UtilsOffice.get_office_constant("xlMinimized")
 
 def minimize_windows(workbook: object) -> None:
+    """
+    minimize_windows - minimize windows of workbook
+
+    Args:
+        workbook (object): workbook object
+    """
     minimizeWindows(workbook)
 
 
@@ -1056,7 +1067,7 @@ class xlWorksheetsSheetsWrapper(xlGenericWrapper):
     """
     xlWorksheetsSheetsWrapper - wrapper for collection objects with pass through for direct calls to wrapped object
 
-    Worksheets wrapper is same generic office wrapper but needed to ensure return type Worksheet.
+    Worksheets wrapper is same like the generic office wrapper but needed to ensure return type Worksheet.
     """
 
     def __call__(self, idx: Union[int, str]):
@@ -1147,8 +1158,18 @@ class xlWorksheetWrapper(xlGenericWrapper):  # noqa: PLW1641
         else:
             raise RuntimeError
 
-    # accepted for range are str, Tuple[int, int], Tuple[Tuple[int, int], Tuple[int, int]]
-    def Range(self, *range):
+    def Range(self, *range) -> xlRangeWrapper:  # docsig: disable=SIG203
+        """
+        Range - create Range object for provided identifier
+
+        accepted for range are str, Tuple[int, int], Tuple[Tuple[int, int], Tuple[int, int]]
+
+        Args:
+            *range (): range identifier
+
+        Returns:
+            xlRangeWrapper: wrapped range object
+        """
 
         if isinstance(range[0], str) and len(range) == 1:
             return xlRangeWrapper(self._xlWrapped.Range(range[0]))
@@ -1167,11 +1188,29 @@ class xlWorksheetWrapper(xlGenericWrapper):  # noqa: PLW1641
         raise RuntimeError
 
     # necessary as Columns is Excel internally a range object -> enforce resolution in Excel
-    def Columns(self, column: int):
+    def Columns(self, column: int) -> xlRangeWrapper:
+        """
+        Columns - create range object for worksheet column
+
+        Args:
+            column (int): column number
+
+        Returns:
+            xlRangeWrapper: wrapped range object
+        """
         return xlRangeWrapper(self._xlWrapped.Columns(column))
 
     # necessary as Rows is Excel internally a range object -> enforce resolution in Excel
-    def Rows(self, row: int):
+    def Rows(self, row: int) -> xlRangeWrapper:
+        """
+        Rows - create range object for worksheet row
+
+        Args:
+            row (int): row number
+
+        Returns:
+            xlRangeWrapper: wrapped range object
+        """
         return xlRangeWrapper(self._xlWrapped.Rows(row))
 
     def lastfilledRow(self, check_cols: Optional[list[int]] = None, rowstart: int = 1) -> int:
@@ -1179,8 +1218,7 @@ class xlWorksheetWrapper(xlGenericWrapper):  # noqa: PLW1641
         lastfilledRow - wrapper object method calling function to determine last filled row
 
         Args:
-            check_cols (List[int] or None], optional): cols to be checked. Def
-            aults to None.
+            check_cols (Optional[list[int]], optional): cols to be checked. Defaults to None.
             rowstart (int, optional): optional start row. Defaults to 1.
 
         Returns:
@@ -1203,7 +1241,6 @@ class xlWorksheetWrapper(xlGenericWrapper):  # noqa: PLW1641
 
 # xlWorksheetWrapper methods as direct callables
 
-# determine last filled row of worksheet/range
 def lastfilledRow(ws: object, check_cols: Optional[list[int]] = None, rowstart: int = 1) -> int:
     """
     lastfilledRow - determine last filled row of worksheet
@@ -1252,8 +1289,7 @@ def last_filled_row(ws: object, check_cols: Optional[list[int]] = None, rowstart
     return lastfilledRow(ws, check_cols, rowstart)
 
 
-# export single worksheet as file
-def exportWorksheet(ws: object, filename: str = "", format: str = ".csv"):
+def exportWorksheet(ws: object, filename: str = "", format: str = ".csv") -> None:
     """
     exportWorksheet - export single worksheet as file
 
@@ -1290,7 +1326,7 @@ def exportWorksheet(ws: object, filename: str = "", format: str = ".csv"):
         err_msg = f"Failed to save sheet '{ws.Name}' as '{exportfile}'."
         raise ErrorUtilsExcel(err_msg)  # noqa: B904
 
-def export_worksheet(ws: object, filename: str = "", format: str = ".csv"):
+def export_worksheet(ws: object, filename: str = "", format: str = ".csv") -> None:
     """
     export_worksheet - export single worksheet as file
 
@@ -1304,7 +1340,7 @@ def export_worksheet(ws: object, filename: str = "", format: str = ".csv"):
 
 # xlRangeWrapper to extend standard Excel Range COM object and encapsulate extended functions
 
-class xlRangeWrapper(xlGenericWrapper):  # noqa: PLW1641
+class xlRangeWrapper(xlGenericWrapper):  # type: ignore[no-redef]
     """
     xlRangeWrapper - wrapper class for Excel range object
 
@@ -1317,12 +1353,15 @@ class xlRangeWrapper(xlGenericWrapper):  # noqa: PLW1641
         """
         __eq__ - check if two range objects are the same via Excel object attributes
         """
-        if not isinstance(other, xlRangeWrapper):
+        if not isinstance(other, xlRangeWrapper):  # type: ignore[misc]
             return NotImplemented
         return \
             (self._xlwrapped.Parent.Parent.FullName == other._xlwrapped.Parent.Parent.FullName) and \
             (self._xlwrapped.Parent.FullName == other._xlwrapped.Parent.Name) and \
             ((self._xlwrapped.Name == other._xlwrapped.Name) or (self._xlwrapped.Address == other._xlwrapped.Address))
+
+    def __hash__(self):
+        return hash(self._xlwrapped.Parent.Parent.FullName + self._xlwrapped.Parent.FullName + self._xlwrapped.Name + self._xlwrapped.Address)
 
     @multimethod.multimethod
     def __call__(self):
@@ -1361,8 +1400,18 @@ class xlRangeWrapper(xlGenericWrapper):  # noqa: PLW1641
                     return xlRangeWrapper(self._xlWrapped.Cells(args[0][0], args[0][1]))
         raise RuntimeError
 
-    # accepted for range are str, Tuple[int, int], Tuple[Tuple[int, int], Tuple[int, int]]
-    def Range(self, *range):
+    def Range(self, *range) -> xlRangeWrapper:  # docsig disable=SIG203
+        """
+        Range - create Range object for provided identifier
+
+        accepted for range are str, Tuple[int, int], Tuple[Tuple[int, int], Tuple[int, int]]
+
+        Args:
+            *range: range identifier
+
+        Returns:
+            xlRangeWrapper: wrapped range object
+        """
 
         if isinstance(range[0], str) and len(range) == 1:
             return xlRangeWrapper(self._xlWrapped.Range(range[0]))
@@ -1430,14 +1479,14 @@ class xlRangeWrapper(xlGenericWrapper):  # noqa: PLW1641
 
 # xlRangeWrapper methods as direct callables
 
-# sort range - for parameters see Excel function signature
-def sortRange(xlRange: object, *args, **kwargs):
+def sortRange(xlRange: object, *args, **kwargs) -> None:  # docsig: disable=SIG302
     """
-    sortRange - sort for Excel range object
+    sortRange - sort for Excel range object (for parameters see Excel function signature)
 
     Args:
         xlRange (object): Excel range object
-        kwargs (dict): parameters according to sort parameters in Excel object catalog
+        *args: n. a.
+        **kwargs: parameters according to sort parameters in Excel object catalog
     """
 
     # signature of Excel sort according to Excel object catalog
@@ -1456,18 +1505,18 @@ def sortRange(xlRange: object, *args, **kwargs):
 
     xlRange.Sort(*[value for key, value in paramsSortRange.items()])
 
-def sort_range(xlRange: object, *args, **kwargs):
+def sort_range(xlRange: object, *args, **kwargs) -> None:  # docsig: disable=SIG302
     """
-    sort_range - sort for Excel range object
+    sort_range - sort for Excel range object (for parameters see Excel function signature)
 
     Args:
         xlRange (object): Excel range object
-        kwargs (dict): parameters according to sort parameters in Excel object catalog
+        *args: n. a.
+        **kwargs: parameters according to sort parameters in Excel object catalog
     """
     sortRange(xlRange, args, **kwargs)
 
 
-# setDate from datetime object - overcome timezone issue
 def setDate(xlcell: object, datevalue: datetime.datetime) -> None:
     """
     setDate - set date from datetime object overcoming timezone==None issue
@@ -1509,8 +1558,7 @@ def set_date(xlcell: object, datevalue: datetime.datetime) -> None:
     """
     setDate(xlcell, datevalue)
 
-# routine to align value source (inspired by package automate-excel)
-# used to fill source data structure with None values to match dimension of target Range object
+
 def values2range(range: object, values, autoadjust: bool = False, header: bool = True) -> None:
     """
     values2range - copy values to Excel range object
@@ -1577,7 +1625,6 @@ extcodes = {
     '.xlam': 55, '.xltx': 54, '.xltm': 53, '.xlsx': 51, '.xlsm': 52, '.xlt': 17, '.xls': -4143, '.xml': 46,
 }
 
-# check file format support by Excel
 def checkxlFileFormat(filename: str, raiseerror: bool = True) -> bool:
     """
     checkxlFileFormat - check file format support by Excel based on extension.
@@ -1606,4 +1653,14 @@ def checkxlFileFormat(filename: str, raiseerror: bool = True) -> bool:
     return False
 
 def check_xl_fileformat(filename: str, raiseerror: bool = True) -> bool:
+    """
+    check_xl_fileformat - check file format support by Excel based on extension.
+
+    Args:
+        filename (str): File name
+        raiseerror (bool, optional): control raising error if file format not valid. Defaults to True.
+
+    Returns:
+        bool: file format of 'filename' is supported by Excel
+    """
     return checkxlFileFormat(filename, raiseerror)
