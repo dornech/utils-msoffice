@@ -93,7 +93,6 @@ added sheet: True
 
 
 
-# from __future__ import annotations
 from typing import Any, ClassVar, NewType, Optional, Union
 from dataclasses import dataclass
 
@@ -409,7 +408,7 @@ class xlAppWrapper:
             """
             return isWorkbookOpenFullname(self._xlWrapped, wbname)
 
-        def openWorkbook(self, filename: str, *args, **kwargs) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
+        def openWorkbook(self, filename: str, *args: Any, **kwargs: Any) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
             """
             openWorkbook - wrapper object method calling function to open workbook
 
@@ -426,7 +425,7 @@ class xlAppWrapper:
             """
             return openWorkbook(self._xlWrapped, filename, *args, **kwargs)
 
-        def openText(self, filename: str, *args, **kwargs) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
+        def openText(self, filename: str, *args: Any, **kwargs: Any) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
             """
             openText - wrapper object method calling function to open workbook
 
@@ -443,7 +442,7 @@ class xlAppWrapper:
             """
             return openText(self._xlWrapped, filename, *args, **kwargs)
 
-        def close_workbooks_not_opened_when_started(self, *args, **kwargs) -> None:
+        def close_workbooks_not_opened_when_started(self, *args: Any, **kwargs: Any) -> None:
             """
             close_workbooks_not_opened - close workbooks not open at startup
             """
@@ -882,7 +881,7 @@ class xlWorkbooksWrapper(xlGenericWrapper):
         """
         return xlAppWrapper(self._xlWrapped.Parent).isWorkbookOpenFullname(wbname)
 
-    def openWorkbook(self, filename: str, *args, **kwargs) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
+    def openWorkbook(self, filename: str, *args: Any, **kwargs: Any) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
         """
         openWorkbook - wrapper object method calling function to open workbook
 
@@ -894,7 +893,7 @@ class xlWorkbooksWrapper(xlGenericWrapper):
         """
         return xlAppWrapper(self._xlWrapped.Parent).openWorkbook(filename, *args, **kwargs)
 
-    def openText(self, filename: str, *args, **kwargs) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
+    def openText(self, filename: str, *args: Any, **kwargs: Any) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
         """
         openText - wrapper object method calling function to open workbook
 
@@ -1158,14 +1157,12 @@ class xlWorksheetWrapper(xlGenericWrapper):  # noqa: PLW1641
         else:
             raise RuntimeError
 
-    def Range(self, *range) -> xlRangeWrapper:  # docsig: disable=SIG203
+    def Range(self, *range: list[Union[str, tuple[int, int], tuple[tuple[int, int], tuple[int, int]]]]) -> xlRangeWrapper:  # docsig: disable=SIG203
         """
         Range - create Range object for provided identifier
 
-        accepted for range are str, Tuple[int, int], Tuple[Tuple[int, int], Tuple[int, int]]
-
         Args:
-            *range (): range identifier
+            *range (list[Union[str, tuple[int, int], tuple[tuple[int, int], tuple[int, int]]]]): range identifier
 
         Returns:
             xlRangeWrapper: wrapped range object
@@ -1400,14 +1397,12 @@ class xlRangeWrapper(xlGenericWrapper):  # type: ignore[no-redef]
                     return xlRangeWrapper(self._xlWrapped.Cells(args[0][0], args[0][1]))
         raise RuntimeError
 
-    def Range(self, *range) -> xlRangeWrapper:  # docsig disable=SIG203
+    def Range(self, *range: list[Union[str, tuple[int, int], tuple[tuple[int, int], tuple[int, int]]]]) -> xlRangeWrapper:  # docsig disable=SIG203
         """
         Range - create Range object for provided identifier
 
-        accepted for range are str, Tuple[int, int], Tuple[Tuple[int, int], Tuple[int, int]]
-
         Args:
-            *range: range identifier
+            *range (list[Union[str, tuple[int, int], tuple[tuple[int, int], tuple[int, int]]]]): range identifier
 
         Returns:
             xlRangeWrapper: wrapped range object
@@ -1429,7 +1424,7 @@ class xlRangeWrapper(xlGenericWrapper):  # type: ignore[no-redef]
                 )
         raise RuntimeError
 
-    def Sort(self, *args, **kwargs):
+    def Sort(self, *args: Any, **kwargs: Any):
         """
         sort - wrapper object method calling sort method for range
         """
@@ -1479,14 +1474,14 @@ class xlRangeWrapper(xlGenericWrapper):  # type: ignore[no-redef]
 
 # xlRangeWrapper methods as direct callables
 
-def sortRange(xlRange: object, *args, **kwargs) -> None:  # docsig: disable=SIG302
+def sortRange(xlRange: object, *args: Any, **kwargs: Any) -> None:  # docsig: disable=SIG302
     """
     sortRange - sort for Excel range object (for parameters see Excel function signature)
 
     Args:
         xlRange (object): Excel range object
-        *args: n. a.
-        **kwargs: parameters according to sort parameters in Excel object catalog
+        *args (Any): n. a.
+        **kwargs (Any): parameters according to sort parameters in Excel object catalog
     """
 
     # signature of Excel sort according to Excel object catalog
@@ -1505,14 +1500,14 @@ def sortRange(xlRange: object, *args, **kwargs) -> None:  # docsig: disable=SIG3
 
     xlRange.Sort(*[value for key, value in paramsSortRange.items()])
 
-def sort_range(xlRange: object, *args, **kwargs) -> None:  # docsig: disable=SIG302
+def sort_range(xlRange: object, *args: Any, **kwargs: Any) -> None:  # docsig: disable=SIG302
     """
     sort_range - sort for Excel range object (for parameters see Excel function signature)
 
     Args:
         xlRange (object): Excel range object
-        *args: n. a.
-        **kwargs: parameters according to sort parameters in Excel object catalog
+        *args (Any): n. a.
+        **kwargs (Any): parameters according to sort parameters in Excel object catalog
     """
     sortRange(xlRange, args, **kwargs)
 
