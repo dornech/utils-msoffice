@@ -2,6 +2,13 @@
 
 
 
+## [v1.0.1](https://github.com/dornech/utils-msoffice/releases/tag/v1.0.1)  (2025-10-28) 
+
+### Bug fixes
+
+- Correct type annotations
+(['bf2eee7'](https://github.com/dornech/utils-msoffice/commit/bf2eee7afa57f937cecd5c309aa27c6a12154f03))
+
 ## [v1.0.0](https://github.com/dornech/utils-msoffice/releases/tag/v1.0.0)  (2025-10-28) 
 
 ### Bug fixes
