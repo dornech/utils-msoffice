@@ -24,27 +24,8 @@ Set of submodules contains:
 
 
 
-# version determination
-
-# original Hatchlor version
-# from importlib.metadata import PackageNotFoundError, version
-# try:
-#     __version__ = version('{{ cookiecutter.project_slug }}')
-# except PackageNotFoundError:  # pragma: no cover
-#     __version__ = 'unknown'
-# finally:
-#     del version, PackageNotFoundError
-
-# latest import requirement for hatch-vcs-footgun-example
+# version determination - latest import requirement for hatch-vcs-footgun-example
 from utils_msoffice.version import __version__
-
-
-import sys
-import os.path
-
-# switch os-path -> pathlib
-sys.path.insert(1, os.path.dirname(os.path.realpath(__file__)))
-# sys.path.insert(1, str(pathlib.Path(__file__).resolve().parent))
 
 import utils_msoffice.utils_office as UtilsOffice
 import utils_msoffice.utils_excel as UtilsExcel
