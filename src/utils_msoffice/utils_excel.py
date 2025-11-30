@@ -81,7 +81,7 @@ added sheet: True
 # boolean-type arguments
 # ruff: noqa: FBT001, FBT002
 # others
-# ruff: noqa: A002, ICN001, E115, E402, E501, F841, PLR5501, RUF059, SIM102, UP007
+# ruff: noqa: A002, ICN001, E115, E402, E501, F841, PLR5501, RUF059, SIM102
 #
 # disable mypy errors
 # - mypy error "'object' has no attribute 'xyz' [attr-defined]" when accessing attributes of
@@ -93,7 +93,7 @@ added sheet: True
 
 
 
-from typing import Any, ClassVar, NewType, Optional, Union
+from typing import Any, ClassVar, NewType
 from dataclasses import dataclass
 
 import os.path
@@ -320,7 +320,7 @@ class xlAppWrapper:
                 # xlAppWrapper._innerWrapper._xlWrapped = xlWrapped
                 pass
 
-    def __getitem__(self, idx: Union[int, str]):
+    def __getitem__(self, idx: int | str):
         return self._innerWrapper.__getitem__(idx)  # type: ignore
 
     def __getattr__(self, attr):
@@ -346,7 +346,7 @@ class xlAppWrapper:
             self._ExcelFlags.initialized = False
             atexit.register(self.CleanUpAndQuit)
 
-        def __getitem__(self, idx: Union[int, str]):
+        def __getitem__(self, idx: int | str):
             return xlWorkbookWrapper(self._xlWrapped.Workbooks(idx))
 
         def saveExcelFlags(self) -> None:
@@ -408,7 +408,7 @@ class xlAppWrapper:
             """
             return isWorkbookOpenFullname(self._xlWrapped, wbname)
 
-        def openWorkbook(self, filename: str, *args: Any, **kwargs: Any) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
+        def openWorkbook(self, filename: str, *args: Any, **kwargs: Any) -> xlWorkbookWrapper | None:  # docsig: disable=SIG203
             """
             openWorkbook - wrapper object method calling function to open workbook
 
@@ -425,7 +425,7 @@ class xlAppWrapper:
             """
             return openWorkbook(self._xlWrapped, filename, *args, **kwargs)
 
-        def openText(self, filename: str, *args: Any, **kwargs: Any) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
+        def openText(self, filename: str, *args: Any, **kwargs: Any) -> xlWorkbookWrapper | None:  # docsig: disable=SIG203
             """
             openText - wrapper object method calling function to open workbook
 
@@ -605,7 +605,7 @@ def is_workbook_open_fullname(xlapp: object, wbname: str) -> bool:
     return wbname in [wb.FullName for wb in xlapp.Workbooks]
 
 
-def openWorkbook(xlapp: object, filename: str, minimizenew: bool = True, autoexec: bool = False, **kwargs) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
+def openWorkbook(xlapp: object, filename: str, minimizenew: bool = True, autoexec: bool = False, **kwargs) -> xlWorkbookWrapper | None:  # docsig: disable=SIG203
     """
     openWorkbook - open workbook
 
@@ -691,7 +691,7 @@ def openWorkbook(xlapp: object, filename: str, minimizenew: bool = True, autoexe
 
     return retval
 
-def open_workbook(xlapp: object, filename: str, minimizenew: bool = True, autoexec: bool = False, **kwargs) -> Union[xlWorkbookWrapper, None]:
+def open_workbook(xlapp: object, filename: str, minimizenew: bool = True, autoexec: bool = False, **kwargs) -> xlWorkbookWrapper | None:
     """
     open_workbook - open workbook
 
@@ -710,7 +710,7 @@ def open_workbook(xlapp: object, filename: str, minimizenew: bool = True, autoex
     return openWorkbook(xlapp, filename, minimizenew, autoexec, **kwargs)
 
 
-def openText(xlapp: object, filename: str, minimizenew: bool = True, **kwargs) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
+def openText(xlapp: object, filename: str, minimizenew: bool = True, **kwargs) -> xlWorkbookWrapper | None:  # docsig: disable=SIG203
     """
     openText - open text file
 
@@ -795,7 +795,7 @@ def openText(xlapp: object, filename: str, minimizenew: bool = True, **kwargs) -
 
     return retval
 
-def open_text(xlapp: object, filename: str, minimizenew: bool = True, **kwargs) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
+def open_text(xlapp: object, filename: str, minimizenew: bool = True, **kwargs) -> xlWorkbookWrapper | None:  # docsig: disable=SIG203
     """
     open_text - open text file
 
@@ -830,14 +830,14 @@ class xlWorkbooksWrapper(xlGenericWrapper):
     However, via generic wrapper functionality the 'pythonic' access is ensured.
     """
 
-    def __call__(self, idx: Union[int, str]):
+    def __call__(self, idx: int | str):
 
         if isinstance(idx, (int, str)):
             return xlWorkbookWrapper(self._xlWrapped.Item(idx))
         else:
             return self._xlWrapped
 
-    def __getitem__(self, idx: Union[int, str]):
+    def __getitem__(self, idx: int | str):
 
         if isinstance(idx, (int, str)):
             return xlWorkbookWrapper(self._xlWrapped.Item(idx))
@@ -881,7 +881,7 @@ class xlWorkbooksWrapper(xlGenericWrapper):
         """
         return xlAppWrapper(self._xlWrapped.Parent).isWorkbookOpenFullname(wbname)
 
-    def openWorkbook(self, filename: str, *args: Any, **kwargs: Any) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
+    def openWorkbook(self, filename: str, *args: Any, **kwargs: Any) -> xlWorkbookWrapper | None:  # docsig: disable=SIG203
         """
         openWorkbook - wrapper object method calling function to open workbook
 
@@ -893,7 +893,7 @@ class xlWorkbooksWrapper(xlGenericWrapper):
         """
         return xlAppWrapper(self._xlWrapped.Parent).openWorkbook(filename, *args, **kwargs)
 
-    def openText(self, filename: str, *args: Any, **kwargs: Any) -> Union[xlWorkbookWrapper, None]:  # docsig: disable=SIG203
+    def openText(self, filename: str, *args: Any, **kwargs: Any) -> xlWorkbookWrapper | None:  # docsig: disable=SIG203
         """
         openText - wrapper object method calling function to open workbook
 
@@ -928,7 +928,7 @@ class xlWorkbookWrapper(xlGenericWrapper):  # type: ignore[no-redef]
     def __hash__(self):
         return hash(self._xlwrapped.FullName)
 
-    def __getitem__(self, idx: Union[int, str]):
+    def __getitem__(self, idx: int | str):
         return xlWorksheetWrapper(self._xlWrapped.Worksheets(idx))
 
     def sheet_exists(self, wsname: str) -> bool:
@@ -1069,7 +1069,7 @@ class xlWorksheetsSheetsWrapper(xlGenericWrapper):
     Worksheets wrapper is same like the generic office wrapper but needed to ensure return type Worksheet.
     """
 
-    def __call__(self, idx: Union[int, str]):
+    def __call__(self, idx: int | str):
 
         if isinstance(idx, (int, str)):
             typename = type(self._xlWrapped.Item(idx)).__name__.replace("_", "")
@@ -1080,7 +1080,7 @@ class xlWorksheetsSheetsWrapper(xlGenericWrapper):
         else:
             return self._xlWrapped
 
-    def __getitem__(self, idx: Union[int, str]):
+    def __getitem__(self, idx: int | str):
 
         if isinstance(idx, (int, str)):
             typename = type(self._xlWrapped.Item(idx)).__name__.replace("_", "")
@@ -1157,7 +1157,7 @@ class xlWorksheetWrapper(xlGenericWrapper):  # noqa: PLW1641
         else:
             raise RuntimeError
 
-    def Range(self, *range: list[Union[str, tuple[int, int], tuple[tuple[int, int], tuple[int, int]]]]) -> xlRangeWrapper:  # docsig: disable=SIG203
+    def Range(self, *range: list[str | tuple[int, int] | tuple[tuple[int, int], tuple[int, int]]]) -> xlRangeWrapper:  # docsig: disable=SIG203
         """
         Range - create Range object for provided identifier
 
@@ -1210,7 +1210,7 @@ class xlWorksheetWrapper(xlGenericWrapper):  # noqa: PLW1641
         """
         return xlRangeWrapper(self._xlWrapped.Rows(row))
 
-    def lastfilledRow(self, check_cols: Optional[list[int]] = None, rowstart: int = 1) -> int:
+    def lastfilledRow(self, check_cols: list[int] | None = None, rowstart: int = 1) -> int:
         """
         lastfilledRow - wrapper object method calling function to determine last filled row
 
@@ -1238,7 +1238,7 @@ class xlWorksheetWrapper(xlGenericWrapper):  # noqa: PLW1641
 
 # xlWorksheetWrapper methods as direct callables
 
-def lastfilledRow(ws: object, check_cols: Optional[list[int]] = None, rowstart: int = 1) -> int:
+def lastfilledRow(ws: object, check_cols: list[int] | None = None, rowstart: int = 1) -> int:
     """
     lastfilledRow - determine last filled row of worksheet
 
@@ -1271,7 +1271,7 @@ def lastfilledRow(ws: object, check_cols: Optional[list[int]] = None, rowstart: 
 
     return checkrow
 
-def last_filled_row(ws: object, check_cols: Optional[list[int]] = None, rowstart: int = 1) -> int:
+def last_filled_row(ws: object, check_cols: list[int] | None = None, rowstart: int = 1) -> int:
     """
     last_filled_row - determine last filled row of worksheet
 
@@ -1397,7 +1397,7 @@ class xlRangeWrapper(xlGenericWrapper):  # type: ignore[no-redef]
                     return xlRangeWrapper(self._xlWrapped.Cells(args[0][0], args[0][1]))
         raise RuntimeError
 
-    def Range(self, *range: list[Union[str, tuple[int, int], tuple[tuple[int, int], tuple[int, int]]]]) -> xlRangeWrapper:  # docsig disable=SIG203
+    def Range(self, *range: list[str | tuple[int, int] | tuple[tuple[int, int], tuple[int, int]]]) -> xlRangeWrapper:  # docsig disable=SIG203
         """
         Range - create Range object for provided identifier
 
@@ -1569,7 +1569,7 @@ def values2range(range: object, values, autoadjust: bool = False, header: bool =
         return hasattr(value, '__iter__') and not isinstance(value, str)
 
     # prepare dataframe
-    if isinstance(values, pandas.core.frame.DataFrame):
+    if isinstance(values, pandas.DataFrame):
         if header:
             colsheader = tuple(col for col in values.columns)
         values = tuple(map(tuple, values.values))

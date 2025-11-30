@@ -32,7 +32,7 @@ callee class.
 
 
 
-from typing import Callable, Optional, Union
+from collections.abc import Callable
 
 import functools
 
@@ -199,7 +199,7 @@ class RunnerVBAcall:
         execmain: Callable,
         linkCOMargs: bool = False,
         params_class: type[ParamsClassBase] = None,   # type: ignore
-        params_class_ini: Optional[type[ParamsClassINI]] = None,
+        params_class_ini: type[ParamsClassINI] | None = None,
         callmethod: str = "",
         log: bool = True
     ):
@@ -306,7 +306,7 @@ class RunnerVBAcall:
 
     @staticmethod
     def readini2params(
-        params: Union[ParamsClassINI, ParamsClassCOMlinkedINI], ParamsClass: type[ParamsClassBase]
+        params: ParamsClassINI | ParamsClassCOMlinkedINI, ParamsClass: type[ParamsClassBase]
     ) -> ParamsClassBase:
         """
         readini2params - read params from INI file into argument parser object
@@ -359,7 +359,7 @@ class RunnerVBAcall:
 
         return params_from_INI
 
-    def executeVBAcalleeINI(self, params_list: Optional[list[str]] = None) -> None:
+    def executeVBAcalleeINI(self, params_list: list[str] | None = None) -> None:
         """
         VBA callee interface for parameter retrieval from INI file provided as parameter
         """
@@ -392,13 +392,13 @@ class RunnerVBAcall:
             err_msg = "Parameter dataclass for retrieving parameters from INI file not set."
             raise AttributeError(err_msg)
 
-    def execute_VBAcallee_from_INI(self, params_list: Optional[list[str]] = None) -> None:
+    def execute_VBAcallee_from_INI(self, params_list: list[str] | None = None) -> None:
         """
         VBA callee interface for parameter retrieval from INI file provided as parameter (alternative callee)
         """
         self.executeVBAcalleeINI(params_list)
 
-    def executeVBAcallee(self, params_list: Optional[list[str]] = None) -> None:
+    def executeVBAcallee(self, params_list: list[str] | None = None) -> None:
         """
         VBA callee interface with direct CLI parameters (basically an CLI callee)
         """
@@ -426,13 +426,13 @@ class RunnerVBAcall:
             err_msg = "Parameter dataclass for retrieving parameters not set."
             raise AttributeError(err_msg)
 
-    def execute_VBAcallee(self, params_list: Optional[list[str]] = None) -> None:
+    def execute_VBAcallee(self, params_list: list[str] | None = None) -> None:
         """
         VBA callee interface with direct CLI parameters (alternative callee)
         """
         self.executeVBAcallee(params_list)
 
-    def executeMain(self, params: Union[ParamsClassBase, ParamsClassCOMlinked]) -> None:
+    def executeMain(self, params: ParamsClassBase | ParamsClassCOMlinked) -> None:
         """
         main routine executed, main processing is "injected" here
         """

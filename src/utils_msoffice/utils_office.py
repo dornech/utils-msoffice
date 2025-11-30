@@ -26,7 +26,8 @@ Module provides various utilities to support COM linking between a Python progra
 
 
 
-from typing import Any, ClassVar, Optional, Union, Callable
+from typing import Any, ClassVar
+from collections.abc import Callable
 
 import sys
 import os.path
@@ -165,7 +166,7 @@ def assign_COMapplication(appCOMclass: str, try_start: bool) -> tuple[object, bo
     return assignCOMapplication(appCOMclass, try_start)
 
 
-def assignCOMdocument(docfile: str) -> Optional[object]:
+def assignCOMdocument(docfile: str) -> object | None:
     """
     assignCOMdocument - assign Microsoft Office document
 
@@ -207,7 +208,7 @@ def assignCOMdocument(docfile: str) -> Optional[object]:
 
     return docCOMobj
 
-def assign_COMdocument(docfile: str) -> Optional[object]:
+def assign_COMdocument(docfile: str) -> object | None:
     """
     assign_COMdocument - assign Microsoft Office document
 
@@ -220,13 +221,13 @@ def assign_COMdocument(docfile: str) -> Optional[object]:
     return assignCOMdocument(docfile)
 
 
-def setAppStatus(appCOMobj: object, status: Union[str, bool]) -> None:
+def setAppStatus(appCOMobj: object, status: str | bool) -> None:
     """
     setAppStatus - set Microsoft Office application status
 
     Args:
         appCOMobj (_type_): Microsoft Office application COM object
-        status(sr, bool): status
+        status(str, bool): status
     """
     # try:
     #     appCOMobj.StatusBar = status
@@ -235,7 +236,7 @@ def setAppStatus(appCOMobj: object, status: Union[str, bool]) -> None:
     with contextlib.suppress(Exception):
         appCOMobj.StatusBar = status
 
-def set_app_status(appCOMobj: object, status: Union[str, bool]) -> None:
+def set_app_status(appCOMobj: object, status: str | bool) -> None:
     """
     set_app_status - set Microsoft Office application status
 
@@ -550,7 +551,7 @@ class msoCollectionWrapper(msoBaseWrapper):
     msoCollectionWrapper - wrapper for collection objects with pass through for direct calls to wrapped object
     """
 
-    def __call__(self, idx: Union[int, str]):
+    def __call__(self, idx: int | str):
 
         if isinstance(idx, (int, str)):
             return msoBaseWrapper(self._msoWrapped.Item(idx))
@@ -638,7 +639,7 @@ def enhance_errormsg(exception: Exception, localsinfo: dict) -> str:
 # convert Python datetime to COM timestamp
 # issue: when calling COM time is automatically assumed as UTC -> adjustment for timezone other than UTC
 
-def cnv_datetime2COMtime(dtval: Union[datetime.datetime, datetime.date], assumeUTC: bool = True) -> pywintypes.Time:
+def cnv_datetime2COMtime(dtval: datetime.datetime | datetime.date, assumeUTC: bool = True) -> pywintypes.Time:
     """
     cnv_datetime2COMtime - convert Python datetime to COM timestamp (COM time always assumed UTC time)
 
@@ -651,7 +652,7 @@ def cnv_datetime2COMtime(dtval: Union[datetime.datetime, datetime.date], assumeU
     """
     return cnv_datetime_COMtime(dtval, assumeUTC)
 
-def cnv_datetime_COMtime(dtval: Union[datetime.datetime, datetime.date], assumeUTC: bool = True) -> pywintypes.Time:
+def cnv_datetime_COMtime(dtval: datetime.datetime | datetime.date, assumeUTC: bool = True) -> pywintypes.Time:
     """
     cnv_datetime_COMtime - convert Python datetime to COM timestamp (COM time always assumed UTC time)
 
