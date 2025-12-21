@@ -44,7 +44,7 @@ jobs:
           Write-Host "GITHUB_PATH: $env:PATH"
           Write-Host "CAIROCFFI_DLL_DIRECTORIES: $env:CAIROCFFI_DLL_DIRECTORIES"
       - name: Check out the repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
