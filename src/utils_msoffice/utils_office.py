@@ -382,7 +382,7 @@ def callwrapper_COMmethod(wrapped_object: object, method: str, wrap_retval: Call
     - unwrapping parameters for COM calls
     - applies the return value wrapping for method results
 
-    Example 1: the Excel method Workbook.SaveAs can be called with keword parameters
+    Example 1: the Excel method Workbook.SaveAs can be called with keyword parameters
     in original writing, in lower case or in snake case wirting:
     - xlWorkbook.SaveAs(SaveChanges=True)
     - xlWorkbook.SaveAs(savechanges=True)
@@ -390,7 +390,7 @@ def callwrapper_COMmethod(wrapped_object: object, method: str, wrap_retval: Call
 
     Example 2: passing wrapped objects works as normal with xlWorkbook being a wrapped
     Excel workbook object and xlWorkbook.worksheets[2] being a wrapped Excel worksheet
-    object (doen via automated wrapping of return values):
+    object (done via automated wrapping of return values):
     - xlWorkbook.Worksheets.Add(After=xlWorkbook.worksheets[2], Count=2)
     """
 

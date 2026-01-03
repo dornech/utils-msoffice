@@ -775,7 +775,8 @@ def openText(xlapp: object, filename: str, minimizenew: bool = True, **kwargs) -
 
     opened = True
     # xlapp.Workbooks.OpenText(Filename=Filename, *args, **kwargs)
-    xlapp.Workbooks.OpenText(filename, *[value for key, value in paramsOpenText.items()])
+    # xlapp.Workbooks.OpenText(filename, *[value for key, value in paramsOpenText.items()])
+    xlapp.Workbooks._xlWrapped.OpenText(filename, *[value for key, value in paramsOpenText.items()])
 
     # reset calculation flag
     for wb, dictws in dictwb.items():
@@ -1424,9 +1425,11 @@ class xlRangeWrapper(xlGenericWrapper):  # type: ignore[no-redef]
                 )
         raise RuntimeError
 
-    def Sort(self, *args: Any, **kwargs: Any):
+    def SortOverloaded(self, *args: Any, **kwargs: Any):
         """
         sort - wrapper object method calling sort method for range
+
+        Note: should not be required with callwrapper_COMmethod
         """
         sortRange(self._xlWrapped, *args, **kwargs)
 
@@ -1498,7 +1501,9 @@ def sortRange(xlRange: object, *args: Any, **kwargs: Any) -> None:  # docsig: di
     }
     Utils.copydictfields(kwargs, paramsSortRange)
 
-    xlRange.Sort(*[value for key, value in paramsSortRange.items()])
+    # potentially callwrapper_COMmethod should do unwrapping of arguments
+    # xlRange.Sort(*[value for key, value in paramsSortRange.items()])
+    xlRange.Sort(*[value if not hasattr(value, '_xlWrapped') else value._xlWrapped for key, value in paramsSortRange.items()])
 
 def sort_range(xlRange: object, *args: Any, **kwargs: Any) -> None:  # docsig: disable=SIG302
     """
