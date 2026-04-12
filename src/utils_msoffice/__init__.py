@@ -10,6 +10,7 @@ Set of submodules contains:
 - submodule with utilities for Microsoft Office in general
 - submodule with utilities for Microsoft Excel including "pythonic" access to ExcelAPI
 - submodule for interfacing calling COM scripting with Microsoft Office applications
+- submodule for making cloakbrowser available
 """
 
 
@@ -30,3 +31,5 @@ from utils_msoffice.version import __version__
 import utils_msoffice.utils_office as UtilsOffice
 import utils_msoffice.utils_excel as UtilsExcel
 import utils_msoffice.runner_VBA as RunnerVBA
+from utils_msoffice.prepare_cloakbrowser import executeVBAcallee as prepare_cloakbrowser
+from utils_msoffice.prepare_undetectedchrome  import executeVBAcallee as prepare_undetectedchrome
