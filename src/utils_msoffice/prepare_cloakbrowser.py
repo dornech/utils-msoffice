@@ -44,6 +44,9 @@ class ParamsClass(TypedArgParse):
 # test routine for PythonIDE debugging - parameters are normally set via CLI
 # hint: quotation marks surrounding parameter values are swallowed by CLI param transfer mechanism
 def executeStandaloneTest() -> None:
+    """
+    execute standalone test
+    """
 
     paramsparser = ParamsClass()
     params = paramsparser.parse_args()
@@ -52,6 +55,9 @@ def executeStandaloneTest() -> None:
 
 # VBA caller with direct CLI parameters (basically an CLI caller)
 def executeVBAcallee() -> None:
+    """
+    callee from VBA (or other language via CLI)
+    """
 
     Utils.log_cli_args()
     paramsparser = ParamsClass(explicit_bool=True)
@@ -66,6 +72,12 @@ def executeVBAcallee() -> None:
 
 # main caller
 def executeMain(params: ParamsClass) -> None:
+    """
+    main routine to download/initialize CloakBrowser and return informationv ia INI-fiel to caller
+
+    Args:
+        params (): parameter dataclass filled via CLI
+    """
 
     # determine cache path for cloakbrowser
     if params.cloakbrowser_cache_dir is None:
