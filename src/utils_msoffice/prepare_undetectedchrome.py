@@ -1,4 +1,4 @@
-# prepare cloakbrowser for calling via VBA
+# prepare undetected-chroemdriver for calling via VBA
 
 
 """
