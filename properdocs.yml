@@ -25,7 +25,7 @@ nav:
 docs_dir: docs
 site_dir: site
 theme:
-  name: material
+  name: materialx
   language: en
   favicon: assets/images/favicon.svg
   icon:

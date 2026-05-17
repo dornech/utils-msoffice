@@ -21,7 +21,7 @@ repos:
       - id: check-toml
       - id: check-xml
       - id: check-yaml
-        args: [ '--unsafe' ]  # needed for !! tags in mkdocs.yml
+        args: [ '--unsafe' ]  # needed for !! tags in mkdocs.yml / properdocs.yml
       - id: end-of-file-fixer
         exclude: CHANGELOG.md
       - id: mixed-line-ending
