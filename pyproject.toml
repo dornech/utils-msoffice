@@ -117,8 +117,8 @@ bump_map = {"feat" = "MINOR", "fix" = "PATCH", "BREAKING CHANGE" = "MAJOR"}
 # with Initial Commit in changelog
 commit_parser ="^(?P<change_type>[Ii]nitial [Cc]ommit|feat|fix|refactor|perf|docs|style|test|chore|build|ci|revert|BREAKING CHANGE)(\\((?P<scope>[^)]+)\\))?(:\\s(?P<message>.*))?"
 changelog_pattern = "^([Ii]nitial [Cc]ommit|feat|fix|docs|style|refactor|perf|test|chore|build|ci|revert|BREAKING CHANGE).*"
-change_type_map = { feat = "Features", fix = "Bug fixes", refactor = "Refactoring", perf = "performance improvements", docs = "Documentation", style = "Code style", test = "Testing", chore = "Chores", build = "Build system", ci = "Continuous Integration" }
-change_type_order = ["BREAKING CHANGE", "feat", "fix", "refactor", "perf", "docs", "style", "test", "chore", "build", "ci"]
+change_type_map = { feat = "Features", fix = "Bug fixes", refactor = "Code refactoring", perf = "Performance improvements", docs = "Documentation", style = "Code style", test = "Testing", chore = "Chores", build = "Build system", ci = "Continuous Integration" }
+change_type_order = ["BREAKING CHANGE", "Features", "Bug fixes", "Code refactoring", "Performance improvements", "Documentation", "Code style", "Testing", "Chore", "Build System", "Continuous Integration", "Initial Commit"]
 
 
 ##################
